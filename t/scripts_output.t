@@ -7,7 +7,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use File::Spec::Functions qw(catfile catdir);
 use Cwd qw(abs_path);
-use AGAT::TestUtilities qw(setup_tempdir);
+use AGAT::TestUtilities qw(setup_tempdir check_diff);
 
 =head1 DESCRIPTION
 
@@ -70,7 +70,7 @@ $result = "$output_folder/agat_convert_bed2gff_1.gff";
 prepare_output_paths();
 system(" $script --bed $input_folder/test.bed -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # -------------------------- check agat_convert_embl2gff -------------------------
 
@@ -79,7 +79,7 @@ $result = "$output_folder/agat_convert_embl2gff_1.gff";
 prepare_output_paths();
 system(" $script --embl $input_folder/agat_convert_embl2gff_1.embl -o $outtmp --emblmygff3 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # -------------------------- check agat_convert_genscan2gff -------------------------
 
@@ -88,7 +88,7 @@ $result = "$output_folder/agat_convert_genscan2gff_1.gff";
 prepare_output_paths();
 system(" $script --genscan $input_folder/test.genscan -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # -------------------------- check agat_convert_mfannot2gff -------------------------
 
@@ -97,14 +97,14 @@ $result = "$output_folder/agat_convert_mfannot2gff_1.gff";
 prepare_output_paths();
 system(" $script --mfannot $input_folder/test.mfannot -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 $script = $script_prefix . catfile($bin_dir, "agat_convert_mfannot2gff.pl");
 $result = "$output_folder/agat_convert_mfannot2gff_2.gff";
 prepare_output_paths();
 system(" $script --mfannot $input_folder/test.mfannot2 -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # -------------------------- check agat_convert_minimap2_bam2gff.pl --------------------------
 $script = $script_prefix . catfile($bin_dir, "agat_convert_minimap2_bam2gff.pl");
@@ -112,7 +112,7 @@ $result = "$output_folder/agat_convert_minimap2_bam2gff_1.gff";
 prepare_output_paths();
 system(" $script -i $input_folder/test_minimap2.sam -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # -------------------------- check agat_convert_sp_gff2bed -------------------------
 
@@ -121,7 +121,7 @@ $result = "$output_folder/agat_convert_sp_gff2bed_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # -------------------------- check agat_convert_sp_gff2gtf -------------------------
 my $convert_sp_gff2gtf_folder = "$input_folder/agat_convert_sp_gff2gtf";
@@ -131,25 +131,25 @@ $result = "$convert_sp_gff2gtf_folder/agat_convert_sp_gff2gtf_1.gtf";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff --gtf_version 3 -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 $result = "$convert_sp_gff2gtf_folder/agat_convert_sp_gff2gtf_2.gtf";
 prepare_output_paths();
 system(" $script --gff $convert_sp_gff2gtf_folder/stop_start_an_exon.gff --gtf_version 3 -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 $result = "$convert_sp_gff2gtf_folder/agat_convert_sp_gff2gtf_3.gtf";
 prepare_output_paths();
 system(" $script --gff $convert_sp_gff2gtf_folder/stop_split_over_two_exons.gff --gtf_version 3 -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 $result = "$convert_sp_gff2gtf_folder/result_issue_245.gtf";
 prepare_output_paths();
 system(" $script --gff $convert_sp_gff2gtf_folder/issue_245.gff --gtf_version 3 -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_to_tabulated.pl-------------
 
@@ -158,7 +158,7 @@ $result = "$output_folder/agat_convert_sp_gff2tsv_1.tsv";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # -------------------------- check agat_convert_sp_gff2zff -------------------------
 
@@ -167,7 +167,7 @@ $result = "$output_folder/agat_convert_sp_gff2zff_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outprefix.ann") == 0, "output $script");
+check_diff( "$outprefix.ann", $result, "output $script" );
 
 # -------------------------- check agat_convert_sp_gxf2gxf.pl -------------------------
 
@@ -180,7 +180,7 @@ $result = "$output_folder/agat_sp_add_attribute_shortest_exon_size.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # -------------------------- check agat_sp_add_attribute_shortest_intron_size -------------------------
 
@@ -189,7 +189,7 @@ $result = "$output_folder/agat_sp_add_attribute_shortest_intron_size.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # -------------------------- check agat_sp_add_intergenic_regions -------------------------
 
@@ -198,7 +198,7 @@ $result = "$output_folder/agat_sp_add_intergenic_regions_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # -------------------------- check agat_sp_add_introns -------------------------
 
@@ -207,7 +207,7 @@ $result = "$output_folder/agat_sp_add_introns_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # -------------------------- check agat_sp_add_splice_sites -------------------------
 
@@ -216,7 +216,7 @@ $result = "$output_folder/agat_sp_add_splice_sites_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/0.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # ---------------------- check agat_sp_add_start_and_stop ----------------------
 
@@ -225,14 +225,14 @@ $result = "$output_folder/agat_sp_add_start_and_stop_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/agat_sp_add_start_and_stop.gff --fasta $input_folder/1.fa --ni -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 $script = $script_prefix . catfile($bin_dir, "agat_sp_add_start_and_stop.pl");
 $result = "$output_folder/agat_sp_add_start_and_stop_2.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/agat_sp_add_start_and_stop.gff --fasta $input_folder/1.fa -e --ni -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # -------------------------- check agat_sp_statistics --------------------------
 
@@ -241,7 +241,7 @@ $result = "$output_folder/agat_sp_alignment_output_style_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/0.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_clipN_seqExtremities_and_fixCoordinates.pl-------------
 
@@ -253,21 +253,21 @@ $result = "$output_folder/agat_sp_compare_two_annotations_1.txt";
 prepare_output_paths();
 system(" $script --gff1 $input_folder/1.gff  --gff2 $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp/report.txt") == 0, "output $script");
+check_diff( "$outtmp/report.txt", $result, "output $script" );
 
 $script = $script_prefix . catfile($bin_dir, "agat_sp_compare_two_annotations.pl");
 $result = "$output_folder/agat_sp_compare_two_annotations_2.txt";
 prepare_output_paths();
 system(" $script --gff1 $input_folder/agat_sp_compare_two_annotations/file1.gff  --gff2 $input_folder/agat_sp_compare_two_annotations/file2.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp/report.txt") == 0, "output $script");
+check_diff( "$outtmp/report.txt", $result, "output $script" );
 
 $script = $script_prefix . catfile($bin_dir, "agat_sp_compare_two_annotations.pl");
 $result = "$output_folder/agat_sp_compare_two_annotations_3.txt";
 prepare_output_paths();
 system(" $script --gff1 $input_folder/agat_sp_compare_two_annotations/file2.gff  --gff2 $input_folder/agat_sp_compare_two_annotations/file1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp/report.txt") == 0, "output $script");
+check_diff( "$outtmp/report.txt", $result, "output $script" );
 
 # --------check agat_sp_compare_two_BUSCOs.pl -------------
 
@@ -281,13 +281,13 @@ system(" $script --ref " . catfile($Bin, 'gff_syntax', 'in', '25_test.gff') .
        "  --add " . catfile($Bin, 'gff_syntax', 'in', '9_test.gff') .
        " -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 $result = "$output_folder/agat_sp_complement_annotations_2.gff";
 prepare_output_paths();
 system(" $script --ref $input_folder/agat_sp_complement_annotations/agat_sp_complement_annotations_ref.gff  --add $input_folder/agat_sp_complement_annotations/agat_sp_complement_annotations_add.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_ensembl_output_style.pl-------------
 
@@ -296,7 +296,7 @@ $result = "$output_folder/agat_sp_ensembl_output_style_1.gff";
 prepare_output_paths();
 system("$script --gff $input_folder/0.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_extract_attributes.pl-------------
 
@@ -305,7 +305,7 @@ $result = "$output_folder/agat_sp_extract_attributes_1.txt";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff --att protein_id -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result ${outprefix}_protein_id.gff") == 0, "output $script");
+check_diff( "${outprefix}_protein_id.gff", $result, "output $script" );
 
 # --------check agat_sp_extract_sequences.pl-------------
 
@@ -314,49 +314,49 @@ $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_1.f
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script test1");
+check_diff( $outtmp, $result, "output $script test1" );
 
 $script = $script_prefix . catfile($bin_dir, "agat_sp_extract_sequences.pl");
 $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_split.fa";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --split -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script test2");
+check_diff( $outtmp, $result, "output $script test2" );
 
 $script = $script_prefix . catfile($bin_dir, "agat_sp_extract_sequences.pl");
 $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_merge.fa";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -t exon --merge -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script test3");
+check_diff( $outtmp, $result, "output $script test3" );
 
 $script = $script_prefix . catfile($bin_dir, "agat_sp_extract_sequences.pl");
 $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_full.fa";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --full -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script test4");
+check_diff( $outtmp, $result, "output $script test4" );
 
 $script = $script_prefix . catfile($bin_dir, "agat_sp_extract_sequences.pl");
 $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_attributes_kept.fa";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --keep_attributes -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script test5");
+check_diff( $outtmp, $result, "output $script test5" );
 
 $script = $script_prefix . catfile($bin_dir, "agat_sp_extract_sequences.pl");
 $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_parent_attributes_kept.fa";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --keep_parent_attributes -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script test6");
+check_diff( $outtmp, $result, "output $script test6" );
 
 # --------check agat_sp_filter_by_locus_distance.pl-------------
 $script = $script_prefix . catfile($bin_dir, "agat_sp_filter_by_locus_distance.pl");
 $result = "$output_folder/agat_sp_filter_by_locus_distance_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_filter_by_mrnaBlastValue.pl-------------
 
@@ -368,14 +368,14 @@ $result = "$output_folder/agat_sp_filter_by_ORF_size_sup100.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result ${outprefix}_sup100.gff") == 0, "output $script");
+check_diff( "${outprefix}_sup100.gff", $result, "output $script" );
 
 # --------check agat_sp_filter_feature_by_attribute_presence.pl-------------
 $script = $script_prefix . catfile($bin_dir, "agat_sp_filter_feature_by_attribute_presence.pl");
 $result = "$output_folder/agat_sp_filter_feature_by_attribute_presence_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp -a protein_id 2>&1 1>/dev/null");
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_filter_feature_by_attribute_value.pl-------------
 
@@ -383,7 +383,7 @@ $script = $script_prefix . catfile($bin_dir, "agat_sp_filter_feature_by_attribut
 $result = "$output_folder/agat_sp_filter_feature_by_attribute_value_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp --value Os01t0100100-01 -p level3 -a protein_id 2>&1 1>/dev/null");
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_filter_feature_from_keep_list.pl-------------
 
@@ -391,7 +391,7 @@ $script = $script_prefix . catfile($bin_dir, "agat_sp_filter_feature_from_keep_l
 $result = "$output_folder/agat_sp_filter_feature_from_keep_list_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp --kl $input_folder/keep_list.txt 2>&1 1>/dev/null");
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_filter_feature_from_kill_list.pl-------------
 
@@ -399,7 +399,7 @@ $script = $script_prefix . catfile($bin_dir, "agat_sp_filter_feature_from_kill_l
 $result = "$output_folder/agat_sp_filter_feature_from_kill_list_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp --kl $input_folder/kill_list.txt 2>&1 1>/dev/null");
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_filter_gene_by_intron_numbers.pl-------------
 
@@ -407,7 +407,7 @@ $script = $script_prefix . catfile($bin_dir, "agat_sp_filter_gene_by_intron_numb
 $result = "$output_folder/agat_sp_filter_gene_by_intron_numbers_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_filter_gene_by_length.pl-------------
 
@@ -415,7 +415,7 @@ $script = $script_prefix . catfile($bin_dir, "agat_sp_filter_gene_by_length.pl")
 $result = "$output_folder/agat_sp_filter_gene_by_length_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff --size 1000 --test \"<\" -o $outtmp 2>&1 1>/dev/null");
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_filter_incomplete_gene_coding_models.pl-------------
 
@@ -425,8 +425,8 @@ $result2 = "$output_folder/agat_sp_filter_incomplete_gene_coding_models_incomple
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
-ok( system("diff $result2 $outprefix"."_incomplete.gff") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
+check_diff( $outprefix . "_incomplete.gff", $result2, "output $script" );
 
 # --------check agat_sp_filter_record_by_coordinates.pl-------------
 
@@ -434,7 +434,7 @@ $script = $script_prefix . catfile($bin_dir, "agat_sp_filter_record_by_coordinat
 $result = "$output_folder/agat_sp_filter_record_by_coordinates_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff --tsv $input_folder/coordinates.tsv -o $outtmp 2>&1 1>/dev/null");
-ok( system("diff $result $outtmp/remaining.gff3") == 0, "output $script");
+check_diff( "$outtmp/remaining.gff3", $result, "output $script" );
 
 # --------check agat_sp_fix_cds_phases.pl-------------
 
@@ -443,7 +443,7 @@ $result = "$output_folder/agat_sp_fix_cds_phases_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_fix_features_locations_duplicated.pl-------------
 # removed because order can change. So not reproducible at 100%
@@ -453,7 +453,7 @@ $result = "$output_folder/agat_sp_fix_features_locations_duplicated_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/agat_sp_fix_features_locations_duplicated/test.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_fix_fusion.pl-------------
 
@@ -462,7 +462,7 @@ $result = "$output_folder/agat_sp_fix_fusion_1.txt";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff -b -I '^Job done in' -I '^Job done in' $result $outprefix-report.txt") == 0, "output $script");
+check_diff( "$outprefix-report.txt", $result, "output $script", "-b -I '^Job done in' -I '^Job done in'" );
 
 # --------agat_sp_fix_longest_ORF.pl-------------
 
@@ -471,7 +471,7 @@ $result = "$output_folder/agat_sp_fix_longest_ORF_1.txt";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff -b -I '^Job done in' -I '^Job done in' $result $outprefix-report.txt") == 0, "output $script");
+check_diff( "$outprefix-report.txt", $result, "output $script", "-b -I '^Job done in' -I '^Job done in'" );
 
 # --------check agat_sp_fix_overlaping_genes.pl-------------
 
@@ -480,14 +480,14 @@ $result = "$output_folder/agat_sp_fix_overlaping_genes_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/genes_overlap.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 $script = $script_prefix . catfile($bin_dir, "agat_sp_fix_overlaping_genes.pl");
 $result = "$output_folder/agat_sp_fix_overlaping_genes_2.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/genes_overlap.gff -o $outtmp --merge 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_fix_small_exon_from_extremities.pl-------------
 
@@ -500,7 +500,7 @@ $result = "$output_folder/agat_sp_flag_short_introns_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/agat_sp_flag_short_introns.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_flag_short_introns_ebi.pl-------------
 
@@ -509,7 +509,7 @@ $result = "$output_folder/agat_sp_flag_short_introns_ebi_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/agat_sp_flag_short_introns_ebi.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_flag_premature_stop_codons.pl-------------
 # I use result from another test because it shifted the annotation location, that allows to create pseudogenes because I use the original fasta not shifted
@@ -518,7 +518,7 @@ $result = "$output_folder/agat_sp_flag_premature_stop_codons_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/prokka_fragmented_genes.gff --fasta $input_folder/prokka_cav_10DC88.fa -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_functional_statistics.pl-------------
 
@@ -527,8 +527,8 @@ $result = "$output_folder/agat_sp_functional_statistics_1.txt";
 prepare_output_paths();
 system(" $script --gff $input_folder/function.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $output_folder/agat_sp_functional_statistics/table_gene_mrna.txt $outtmp/gene\@mrna/table_per_feature_type.txt") == 0, "output $script");
-ok( system("diff $output_folder/agat_sp_functional_statistics/table_repeat.txt $outtmp/repeat_region/table_per_feature_type.txt") == 0, "output $script");
+check_diff( "$outtmp/gene\@mrna/table_per_feature_type.txt", "$output_folder/agat_sp_functional_statistics/table_gene_mrna.txt", "output $script" );
+check_diff( "$outtmp/repeat_region/table_per_feature_type.txt", "$output_folder/agat_sp_functional_statistics/table_repeat.txt", "output $script" );
 
 # --------check agat_sp_keep_longest_isoform.pl-------------
 
@@ -537,13 +537,13 @@ $result = "$output_folder/agat_sp_keep_longest_isoform_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 $result = "$output_folder/agat_sp_keep_longest_isoform_2.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/agat_sp_keep_longest_isoform_2.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_kraken_assess_liftover.pl-------------
 
@@ -552,7 +552,7 @@ $result = "$output_folder/agat_sp_kraken_assess_liftover_1.gff";
 prepare_output_paths();
 system(" $script --gtf $input_folder/test_kraken.gtf -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_list_short_introns.pl-------------
 
@@ -561,7 +561,7 @@ $result = "$output_folder/agat_sp_list_short_introns_1.txt";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_load_function_from_protein_align.pl-------------
 
@@ -574,7 +574,7 @@ $result = "$output_folder/agat_sp_manage_IDs_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff --prefix NBIS --ensembl --tair --type_dependent -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_manage_UTRs.pl-------------
 
@@ -583,7 +583,7 @@ $result = "$output_folder/agat_sp_manage_UTRs_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -b -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outprefix/1_bothSides_under5.gff") == 0, "output $script");
+check_diff( "$outprefix/1_bothSides_under5.gff", $result, "output $script" );
 
 # --------check agat_sp_manage_attributes.pl-------------
 
@@ -592,7 +592,7 @@ $result = "$output_folder/agat_sp_manage_attributes_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff --att protein_id -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_manage_functional_annotation.pl-------------
 
@@ -601,7 +601,7 @@ $result = "$output_folder/agat_sp_manage_functional_annotation_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/agat_sp_manage_functional_annotation/02413F.gff --db $input_folder/agat_sp_manage_functional_annotation/uniprot_sprot_test.fasta -b $input_folder/agat_sp_manage_functional_annotation/02413F_blast.out -i $input_folder/agat_sp_manage_functional_annotation/02413F_interpro.tsv --clean_name -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system( "diff $result $outtmp/02413F.gff" ) == 0, "output $script");
+check_diff( "$outtmp/02413F.gff", $result, "output $script" );
 
 # --------check agat_sp_manage_introns.pl-------------
 
@@ -610,7 +610,7 @@ $result = "$output_folder/agat_sp_manage_introns_1.txt";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system( "diff  -b -I '^usage:' -I '^usage:' $result $outtmp/report.txt" ) == 0, "output $script");
+check_diff( "$outtmp/report.txt", $result, "output $script", "-b -I '^usage:' -I '^usage:'" );
 
 # ------------------- check agat_sp_merge_annotations script-------------------
 
@@ -619,19 +619,19 @@ $result = "$output_folder/agat_sp_merge_annotations_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/agat_sp_merge_annotations/file1.gff  --gff $input_folder/agat_sp_merge_annotations/file2.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 $result = "$output_folder/agat_sp_merge_annotations_2.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/agat_sp_merge_annotations/fileA.gff  --gff $input_folder/agat_sp_merge_annotations/fileB.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 $result = "$output_folder/agat_sp_merge_annotations_3.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/agat_sp_merge_annotations/test457_A.gff  --gff $input_folder/agat_sp_merge_annotations/test457_B.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # ------------------- check agat_sp_move_attributes_within_records script-------------------
 
@@ -640,7 +640,7 @@ $result = "$output_folder/agat_sp_move_attributes_within_records.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/agat_sp_move_attributes_within_records.gff --fp exon,CDS --fc mRNA -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # ------------------- check agat_sp_prokka_fragmented_gene_annotations script-------------------
 
@@ -650,8 +650,8 @@ $result2 = "$output_folder/agat_sp_prokka_fix_fragmented_gene_annotations_1.fa";
 prepare_output_paths();
 system(" $script --gff $input_folder/prokka_cav_10DC88.gff --fasta $input_folder/prokka_cav_10DC88.fa --db $input_folder/prokka_bacteria_sprot.fa --skip_hamap --frags -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system( "diff $result $outtmp/prokka_cav_10DC88.gff" ) == 0, "output $script");
-ok( system( "diff $result2 $outtmp/prokka_cav_10DC88.fa" ) == 0, "output $script");
+check_diff( "$outtmp/prokka_cav_10DC88.gff", $result, "output $script" );
+check_diff( "$outtmp/prokka_cav_10DC88.fa", $result2, "output $script" );
 
 # ------------------- check agat_sp_sensitivity_specificity script-------------------
 
@@ -660,35 +660,35 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_1.txt";
 prepare_output_paths();
 system(" $script --gff1 $input_folder/1.gff --gff2 $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 $script = $script_prefix . catfile($bin_dir, "agat_sp_sensitivity_specificity.pl");
 $result = "$output_folder/agat_sp_sensitivity_specificity_2.txt";
 prepare_output_paths();
 system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref0.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query0.gff3 -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 $script = $script_prefix . catfile($bin_dir, "agat_sp_sensitivity_specificity.pl");
 $result = "$output_folder/agat_sp_sensitivity_specificity_3.txt";
 prepare_output_paths();
 system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref1.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query1.gff3 -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 $script = $script_prefix . catfile($bin_dir, "agat_sp_sensitivity_specificity.pl");
 $result = "$output_folder/agat_sp_sensitivity_specificity_4.txt";
 prepare_output_paths();
 system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref2.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query2.gff3 -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 $script = $script_prefix . catfile($bin_dir, "agat_sp_sensitivity_specificity.pl");
 $result = "$output_folder/agat_sp_sensitivity_specificity_5.txt";
 prepare_output_paths();
 system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref3.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query3.gff3 -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 # --------check agat_sp_split_by_level2_feature.pl-------------
 
 $script = $script_prefix . catfile($bin_dir, "agat_sp_separate_by_record_type.pl");
@@ -696,7 +696,7 @@ $result = "$output_folder/agat_sp_separate_by_record_type_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp/trna.gff") == 0, "output $script");
+check_diff( "$outtmp/trna.gff", $result, "output $script" );
 
 # -------------------------- check agat_sp_statistics --------------------------
 
@@ -705,7 +705,7 @@ $result = "$output_folder/agat_sp_statistics_1.txt";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp -r 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sp_webApollo_compliant.pl-------------
 
@@ -714,7 +714,7 @@ $result = "$output_folder/agat_sp_webApollo_compliant_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sq_add_attributes_from_tsv.pl-------------
 
@@ -723,7 +723,7 @@ $result = "$output_folder/agat_sq_add_attributes_from_tsv_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/agat_sq_add_attributes_from_tsv.gff --tsv $input_folder/agat_sq_add_attributes_from_tsv.tsv -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sq_add_hash_tag.pl-------------
 
@@ -732,7 +732,7 @@ $result = "$output_folder/agat_sq_add_hash_tag_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -i 2 -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sq_add_locus_tag.pl-------------
 
@@ -741,7 +741,7 @@ $result = "$output_folder/agat_sq_add_locus_tag_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sq_keep_annotation_from_fastaSeq.pl-------------
 
@@ -755,7 +755,7 @@ $result = "$output_folder/agat_sq_list_attributes_1.txt";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff -b -I '^Job done in' $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script", "-b -I '^Job done in'" );
 
 # --------check agat_sq_manage_ID.pl-------------
 
@@ -765,7 +765,7 @@ prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 #ok( system("diff -b -I '^usage:' -I '^usage:' $result $outtmp") == 0, "output $script");
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sq_mask.pl-------------
 
@@ -779,7 +779,7 @@ $result = "$output_folder/agat_sq_remove_redundant_entries_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sq_rename_seqid.pl-------------
 
@@ -788,7 +788,7 @@ $result = "$output_folder/agat_sq_rename_seqid_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/agat_sq_rename_seqid/rename_seqid.gff --tsv $input_folder/agat_sq_rename_seqid/rename_table.tsv -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sq_repeats_analyzer.pl-------------
 
@@ -801,7 +801,7 @@ $result = "$output_folder/agat_sq_reverse_complement_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff --fasta  $input_folder/1.fa -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
 
 # --------check agat_sq_rfam_analyzer.pl-------------
 
@@ -818,4 +818,4 @@ $result = "$output_folder/agat_sq_stat_basic_1.gff";
 prepare_output_paths();
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+check_diff( $outtmp, $result, "output $script" );
