@@ -6,6 +6,8 @@ use Test::More tests => 15;
 use Bio::Tools::GFF;
 use AGAT::AGAT;
 use AGAT::OmniscientTool;
+use FindBin qw($Bin);
+use File::Spec::Functions qw(catfile);
 
 =head1 DESCRIPTION
 
@@ -24,7 +26,6 @@ if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
 
 # remove config in local folder if exists
 my $config="agat_config.yaml";
-unlink $config;
 
 # get standard config
 $config = get_agat_config();
@@ -32,7 +33,7 @@ $config->{verbose}=0;
 $config->{progress_bar}=0;
 
 # Get one omnisceint to work with
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => "t/scripts_output/in/1.gff",
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => catfile($Bin, 'scripts_output', 'in', '1.gff'),
                                                                 config => $config
                                                                 });
 

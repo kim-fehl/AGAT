@@ -2,6 +2,10 @@
 
 use strict;
 use warnings;
+use FindBin qw($Bin);
+use File::Spec::Functions qw(catdir catfile);
+use Cwd qw(abs_path);
+our $BIN_DIR;
 
 =head1 DESCRIPTION
 
@@ -13,7 +17,9 @@ Test to see if all script in the bin file can be compiled without error.
 #   set number of test according to number of scripts
 my $nb_test;
 BEGIN{
-  opendir (DIR, "bin") or die $!;
+  my $root = abs_path(catdir($Bin, '..'));
+  my $bin_dir = catdir($root, 'bin');
+  opendir (DIR, $bin_dir) or die $!;
   while (my $file = readdir(DIR)) {
      # Use a regular expression to ignore files beginning with a period
      next if ($file =~ m/^\./);
@@ -22,23 +28,21 @@ BEGIN{
      $nb_test++;
   }
   closedir(DIR);
+  $BIN_DIR = $bin_dir;
 }
 #
 ################################################################################
 
 use Test::More tests => $nb_test ;
 
-# remove config in local folder if exists
-my $config="agat_config.yaml";
-unlink $config; 
-
 # foreach script in the bin, let run the test
-opendir (DIR, "bin") or die $!;
+opendir (DIR, $BIN_DIR) or die $!;
 while (my $file = readdir(DIR)) {
    # Use a regular expression to ignore files beginning with a period
    next if ($file =~ m/^\./);
-   print "bin/$file -h 1>/dev/null\n";
+   my $path = catfile($BIN_DIR, $file);
+   print "$path -h 1>/dev/null\n";
    #run test - check the script can run calling the help.
-   ok( system("bin/$file -h 1>/dev/null") == 0, "test $file")
+   ok( system("$path -h 1>/dev/null") == 0, "test $file")
 }
 closedir(DIR);

@@ -3,6 +3,9 @@
 use strict;
 use warnings;
 use Test::More tests => 3;
+use FindBin qw($Bin);
+use File::Spec::Functions qw(catdir catfile);
+use Cwd qw(abs_path);
 
 =head1 DESCRIPTION
 
@@ -20,15 +23,14 @@ if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
 
 # script to call to check the parser
 my $script = "";
-my $output_folder = "t/config/out";
-my $config="agat_config.yaml";
+my $root = abs_path(catdir($Bin, '..'));
+my $output_folder = catdir($Bin, 'config', 'out');
+my $config = 'agat_config.yaml';
 
 # remove config in local folder if exists
-unlink $config; 
-unlink "tmp.gff";
 
 # ---- test gzip file and contain fasta ----
-$script = $script_prefix."bin/agat";
+$script = $script_prefix . catfile($root, 'bin', 'agat');
 my $correct_output = "$output_folder/$config";
 
 system("$script config -e \\
@@ -63,7 +65,6 @@ system("$script config -e \\
 #run test
 ok( system("diff $config $correct_output") == 0, "modif config check");
 # remove file created for the test
-unlink $config;
 
 # ----- Test Rename config file ----
 
@@ -75,10 +76,10 @@ ok( system("if [ -e $new_config_name ];then exit 0;fi") == 0, "rename agat confi
 
 # ----- Test use a renamed config file ----
 
-system("bin/agat_convert_sp_gxf2gxf.pl --gff t/gff_syntax/in/28_test.gff -c $new_config_name -o tmp.gff  2>&1 1>/dev/null");
+system(catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl') .
+       " --gff " . catfile($Bin, 'gff_syntax', 'in', '28_test.gff') .
+       " -c $new_config_name -o tmp.gff  2>&1 1>/dev/null");
 #run test 
-ok( system("diff tmp.gff t/gff_syntax/out/28_correct_output.gff") == 0, "Use custom agat config file check");
+ok( system("diff tmp.gff " . catfile($Bin, 'gff_syntax', 'out', '28_correct_output.gff')) == 0, "Use custom agat config file check");
 
 # remove file created for the test
-unlink "tmp.gff";
-unlink $new_config_name;
