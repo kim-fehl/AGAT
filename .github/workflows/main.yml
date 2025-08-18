@@ -50,7 +50,9 @@ jobs:
       - name: test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: HARNESS_OPTIONS=j$(nproc) make test
+        run: |
+          perl Makefile.PL
+          HARNESS_OPTIONS=j$(nproc) make test
 
   # This workflow contains a first job called "build"
   build_perl530:
