@@ -32,6 +32,15 @@ my $config = 'agat_config.yaml';
 
 # remove config in local folder if exists and potential tmp file already existing
 
+sub check_diff {
+  my ( $got, $expected, $label ) = @_;
+  diag("Comparing files: $got <-> $expected");
+  my $diff_output = qx(diff $got $expected 2>&1);
+  my $exit_code   = $? >> 8;
+  diag("Diff output:\n$diff_output") if $exit_code != 0;
+  ok( $exit_code == 0, $label );
+}
+
 # -------- test gzip file and contain fasta --------
 $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
 my $correct_output = "$output_folder/zip_and_fasta_correct_output.gff";
@@ -39,7 +48,7 @@ my $correct_output = "$output_folder/zip_and_fasta_correct_output.gff";
 system("$script --gff " . catfile($input_folder, 'zip_and_fasta.gff.gz') . " -o $pathtmp  2>&1 1>/dev/null");
 
 #run test
-ok( system("diff $pathtmp $correct_output") == 0, "zip_and_fasta check");
+check_diff( $pathtmp, $correct_output, "zip_and_fasta check" );
 
 # -------- test tabix output sorting --------
 $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
@@ -49,7 +58,7 @@ system("$script_agat config --expose --tabix 2>&1 1>/dev/null");
 system("$script --gff " . catfile($Bin, 'scripts_output', 'in', '1.gff') . " -o $pathtmp 2>&1 1>/dev/null");
 
 #run test
-ok( system("diff $pathtmp $correct_output") == 0, "tabix check");
+check_diff( $pathtmp, $correct_output, "tabix check" );
 
 # -------- Parent ID already used by same level feature --------
 $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
@@ -58,7 +67,7 @@ $correct_output = "$output_folder/issue329.gff";
 system("$script --gff " . catfile($input_folder, 'issue329.gff') . " -o $pathtmp 2>&1 1>/dev/null");
 
 #run test
-ok( system("diff $pathtmp $correct_output") == 0, "issue329 check");
+check_diff( $pathtmp, $correct_output, "issue329 check" );
 
 # -------- Issue 368 avoid seq_id 0 replaced by SEQ --------
 $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
@@ -67,7 +76,7 @@ $correct_output = "$output_folder/issue368.gff";
 system("$script --gff " . catfile($input_folder, 'issue368.gff') . " -o $pathtmp 2>&1 1>/dev/null");
 
 #run test
-ok( system("diff $pathtmp $correct_output") == 0, "issue368 check");
+check_diff( $pathtmp, $correct_output, "issue368 check" );
 
 # -------- Issue 389 very wierd --------
 $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
@@ -76,7 +85,7 @@ $correct_output = "$output_folder/issue389.gff";
 system("$script --gff " . catfile($input_folder, 'issue389.gff') . " -o $pathtmp 2>&1 1>/dev/null");
 
 #run test
-ok( system("diff $pathtmp $correct_output") == 0, "issue389 check");
+check_diff( $pathtmp, $correct_output, "issue389 check" );
 
 # --------- Issue 441 transccipt_id used for GTF while L2 L1 created from L3 with isoforms ----
 $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
@@ -85,7 +94,7 @@ $correct_output = "$output_folder/issue441.gtf";
 system("$script_agat config --expose --output_format gtf 2>&1 1>/dev/null");
 system("$script --g " . catfile($input_folder, 'issue441.gtf') . " -o $pathtmp  2>&1 1>/dev/null");
 
-ok( system("diff $pathtmp $correct_output") == 0, "issue441 check");
+check_diff( $pathtmp, $correct_output, "issue441 check" );
 
 # --------- Issue 448 bioperl adding extra empty ID attribute that mess up AGAT (only when input parsed with version 2 and 2.5)  ----
 $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
@@ -94,12 +103,12 @@ $correct_output = "$output_folder/issue448.gtf";
 system("$script_agat config --expose --output_format gtf 2>&1 1>/dev/null");
 system("$script --g " . catfile($input_folder, 'issue448.gtf') . " -o $pathtmp  2>&1 1>/dev/null");
 
-ok( system("diff $pathtmp $correct_output") == 0, "issue448 check");
+check_diff( $pathtmp, $correct_output, "issue448 check" );
 
 $correct_output = "$output_folder/issue448.gff";
 system("$script --g " . catfile($input_folder, 'issue448.gtf') . " -o $pathtmp  2>&1 1>/dev/null");
 
-ok( system("diff $pathtmp $correct_output") == 0, "issue448 check");
+check_diff( $pathtmp, $correct_output, "issue448 check" );
 
 # --------- Issue 457 multi-values attributes (gene_name "26266" "MT-TL1";) can be deflated to be compliant with GTF and CellRanger
 
@@ -109,4 +118,4 @@ $correct_output = "$output_folder/issue457.gtf";
 system("$script_agat config --expose --deflate_attribute 2>&1 1>/dev/null");
 system("$script --gff " . catfile($input_folder, 'issue457.gff') . " -o $pathtmp  2>&1 1>/dev/null");
 
-ok( system("diff $pathtmp $correct_output") == 0, "issue457 check");
+check_diff( $pathtmp, $correct_output, "issue457 check" );
