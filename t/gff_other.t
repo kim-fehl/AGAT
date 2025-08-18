@@ -7,7 +7,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use File::Spec::Functions qw(catdir catfile);
 use Cwd qw(abs_path);
-use AGAT::TestTempDir qw(setup_tempdir);
+use AGAT::TestUtilities qw(setup_tempdir check_diff);
 
 =head1 DESCRIPTION
 
@@ -30,15 +30,6 @@ my $script_agat = $script_prefix . catfile($root, 'bin', 'agat');
 my $input_folder = catdir($Bin, 'gff_other', 'in');
 my $output_folder = catdir($Bin, 'gff_other', 'out');
 # remove config in local folder if exists and potential tmp file already existing
-
-sub check_diff {
-  my ( $got, $expected, $label ) = @_;
-  diag("Comparing files: $got <-> $expected");
-  my $diff_output = qx(diff $got $expected 2>&1);
-  my $exit_code   = $? >> 8;
-  diag("Diff output:\n$diff_output") if $exit_code != 0;
-  ok( $exit_code == 0, $label );
-}
 
 # -------- test gzip file and contain fasta --------
 {

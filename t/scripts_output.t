@@ -7,7 +7,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use File::Spec::Functions qw(catfile catdir);
 use Cwd qw(abs_path);
-use AGAT::TestTempDir qw(setup_tempdir);
+use AGAT::TestUtilities qw(setup_tempdir);
 
 =head1 DESCRIPTION
 

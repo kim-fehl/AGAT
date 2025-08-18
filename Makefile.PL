@@ -8,7 +8,7 @@ use Cwd qw(abs_path);
 install_share dist => 'share';
 
 # ensure temporary test directories are isolated
-$ENV{HARNESS_PERL_SWITCHES} = join ' ', '-I' . abs_path('t/lib') . ' -MAGAT::TestTempDir', ($ENV{HARNESS_PERL_SWITCHES} // '');
+$ENV{HARNESS_PERL_SWITCHES} = join ' ', '-I' . abs_path('t/lib') . ' -MAGAT::TestUtilities', ($ENV{HARNESS_PERL_SWITCHES} // '');
 
 # ------------------- CREATE LIST OF EXE FILE ----------------------------------
 
