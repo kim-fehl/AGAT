@@ -3,8 +3,10 @@
 use strict;
 use warnings;
 use FindBin qw($Bin);
+use lib "$Bin/lib";
 use File::Spec::Functions qw(catdir catfile);
 use Cwd qw(abs_path);
+use AGAT::TestUtilities qw(setup_tempdir check_diff);
 our $BIN_DIR;
 
 =head1 DESCRIPTION
@@ -41,8 +43,11 @@ while (my $file = readdir(DIR)) {
    # Use a regular expression to ignore files beginning with a period
    next if ($file =~ m/^\./);
    my $path = catfile($BIN_DIR, $file);
-   print "$path -h 1>/dev/null\n";
-   #run test - check the script can run calling the help.
-   ok( system("$path -h 1>/dev/null") == 0, "test $file")
+   {
+       my $dir = setup_tempdir();
+       print "$path -h 1>/dev/null\n";
+       #run test - check the script can run calling the help.
+       ok( system("$path -h 1>/dev/null") == 0, "test $file" );
+   }
 }
 closedir(DIR);

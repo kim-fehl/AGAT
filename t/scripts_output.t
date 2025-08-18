@@ -710,8 +710,12 @@ $result = "$output_folder/agat_sp_fix_fusion_1.txt";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp 2>&1 1>/dev/null");
+    my $got = catfile( $dir, 'report.txt.clean' );
+    my $exp = catfile( $dir, 'expected.txt.clean' );
+    _strip_usage( "$outprefix-report.txt", $got );
+    _strip_usage( $result, $exp );
     #run test
-    check_diff( "$outprefix-report.txt", $result, "output $script", "-b -I '^Job done in' -I '^Job done in'" );
+    check_diff( $got, $exp, "output $script", "-b -I '^Job done in' -I '^Job done in'" );
 }
 
 

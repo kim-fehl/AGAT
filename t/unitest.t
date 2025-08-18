@@ -7,7 +7,9 @@ use Bio::Tools::GFF;
 use AGAT::AGAT;
 use AGAT::OmniscientTool;
 use FindBin qw($Bin);
+use lib "$Bin/lib";
 use File::Spec::Functions qw(catfile);
+use AGAT::TestUtilities qw(setup_tempdir check_diff);
 
 =head1 DESCRIPTION
 
@@ -26,6 +28,8 @@ if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
 
 # remove config in local folder if exists
 my $config="agat_config.yaml";
+
+my $dir = setup_tempdir();
 
 # get standard config
 $config = get_agat_config();
