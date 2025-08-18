@@ -53,6 +53,18 @@ my $script;
 my $result;
 my $result2;
 
+sub _strip_usage {
+    my ( $src, $dest ) = @_;
+    open my $in,  '<', $src  or die "Cannot open $src: $!";
+    open my $out, '>', $dest or die "Cannot open $dest: $!";
+    while ( my $line = <$in> ) {
+        next if $line =~ /^usage: /;
+        print {$out} $line;
+    }
+    close $in;
+    close $out;
+}
+
 # remove config in local folder if exists and potential tmp file already existing
 
 # -------------------------- check agat_convert_bed2gff -------------------------
@@ -352,8 +364,12 @@ $result = "$output_folder/agat_sp_compare_two_annotations_1.txt";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff1 $input_folder/1.gff  --gff2 $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
+    my $got = catfile( $dir, 'report.txt.clean' );
+    my $exp = catfile( $dir, 'expected.txt.clean' );
+    _strip_usage( "$outtmp/report.txt", $got );
+    _strip_usage( $result, $exp );
     #run test
-    check_diff( "$outtmp/report.txt", $result, "output $script" );
+    check_diff( $got, $exp, "output $script" );
 }
 
 
@@ -364,8 +380,12 @@ $result = "$output_folder/agat_sp_compare_two_annotations_2.txt";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff1 $input_folder/agat_sp_compare_two_annotations/file1.gff  --gff2 $input_folder/agat_sp_compare_two_annotations/file2.gff -o $outtmp 2>&1 1>/dev/null");
+    my $got = catfile( $dir, 'report.txt.clean' );
+    my $exp = catfile( $dir, 'expected.txt.clean' );
+    _strip_usage( "$outtmp/report.txt", $got );
+    _strip_usage( $result, $exp );
     #run test
-    check_diff( "$outtmp/report.txt", $result, "output $script" );
+    check_diff( $got, $exp, "output $script" );
 }
 
 
@@ -376,8 +396,12 @@ $result = "$output_folder/agat_sp_compare_two_annotations_3.txt";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff1 $input_folder/agat_sp_compare_two_annotations/file2.gff  --gff2 $input_folder/agat_sp_compare_two_annotations/file1.gff -o $outtmp 2>&1 1>/dev/null");
+    my $got = catfile( $dir, 'report.txt.clean' );
+    my $exp = catfile( $dir, 'expected.txt.clean' );
+    _strip_usage( "$outtmp/report.txt", $got );
+    _strip_usage( $result, $exp );
     #run test
-    check_diff( "$outtmp/report.txt", $result, "output $script" );
+    check_diff( $got, $exp, "output $script" );
 }
 
 
@@ -700,8 +724,12 @@ $result = "$output_folder/agat_sp_fix_longest_ORF_1.txt";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp 2>&1 1>/dev/null");
+    my $got = catfile( $dir, 'report.txt.clean' );
+    my $exp = catfile( $dir, 'expected.txt.clean' );
+    _strip_usage( "$outprefix-report.txt", $got );
+    _strip_usage( $result, $exp );
     #run test
-    check_diff( "$outprefix-report.txt", $result, "output $script", "-b -I '^Job done in' -I '^Job done in'" );
+    check_diff( $got, $exp, "output $script", "-b -I '^Job done in' -I '^Job done in'" );
 }
 
 
@@ -994,8 +1022,12 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_1.txt";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff1 $input_folder/1.gff --gff2 $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
+    my $got = catfile( $dir, 'report.txt.clean' );
+    my $exp = catfile( $dir, 'expected.txt.clean' );
+    _strip_usage( $outtmp, $got );
+    _strip_usage( $result, $exp );
     #run test
-    check_diff( $outtmp, $result, "output $script" );
+    check_diff( $got, $exp, "output $script" );
 }
 
 
@@ -1006,8 +1038,12 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_2.txt";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref0.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query0.gff3 -o $outtmp 2>&1 1>/dev/null");
+    my $got = catfile( $dir, 'report.txt.clean' );
+    my $exp = catfile( $dir, 'expected.txt.clean' );
+    _strip_usage( $outtmp, $got );
+    _strip_usage( $result, $exp );
     #run test
-    check_diff( $outtmp, $result, "output $script" );
+    check_diff( $got, $exp, "output $script" );
 }
 
 
@@ -1018,8 +1054,12 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_3.txt";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref1.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query1.gff3 -o $outtmp 2>&1 1>/dev/null");
+    my $got = catfile( $dir, 'report.txt.clean' );
+    my $exp = catfile( $dir, 'expected.txt.clean' );
+    _strip_usage( $outtmp, $got );
+    _strip_usage( $result, $exp );
     #run test
-    check_diff( $outtmp, $result, "output $script" );
+    check_diff( $got, $exp, "output $script" );
 }
 
 
@@ -1030,8 +1070,12 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_4.txt";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref2.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query2.gff3 -o $outtmp 2>&1 1>/dev/null");
+    my $got = catfile( $dir, 'report.txt.clean' );
+    my $exp = catfile( $dir, 'expected.txt.clean' );
+    _strip_usage( $outtmp, $got );
+    _strip_usage( $result, $exp );
     #run test
-    check_diff( $outtmp, $result, "output $script" );
+    check_diff( $got, $exp, "output $script" );
 }
 
 
@@ -1042,8 +1086,12 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_5.txt";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref3.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query3.gff3 -o $outtmp 2>&1 1>/dev/null");
+    my $got = catfile( $dir, 'report.txt.clean' );
+    my $exp = catfile( $dir, 'expected.txt.clean' );
+    _strip_usage( $outtmp, $got );
+    _strip_usage( $result, $exp );
     #run test
-    check_diff( $outtmp, $result, "output $script" );
+    check_diff( $got, $exp, "output $script" );
 }
 
 # --------check agat_sp_split_by_level2_feature.pl-------------
