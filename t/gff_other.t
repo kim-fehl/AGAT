@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Test::More tests => 9;
 use FindBin qw($Bin);
+use lib "$Bin/lib";
 use File::Spec::Functions qw(catdir catfile);
 use Cwd qw(abs_path);
 use AGAT::TestTempDir qw(setup_tempdir);
