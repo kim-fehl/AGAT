@@ -15,25 +15,7 @@ Test to verify the output of scripts using gff_syntax cases
 
 =cut
 
-################################################################################
-#   set number of test according to number of scripts
-my $nb_test;
-BEGIN{
-  open(FH, '<', __FILE__) or die $!;
-  while(<FH>){
-    if( $_ !~ /^#/){ #if it is not a comment line
-      if (index($_ , "ok(") != -1) { # This is a test line. We should avoid counting this line. It is why we remove 1 later
-        $nb_test++;
-      }
-    }
-  }
-  $nb_test--;
-  close(FH);
-}
-#
-################################################################################
-
-use Test::More tests => $nb_test ;
+use Test::More;
 
 # Check if has to be run in Devel::Cover or not
 my $script_prefix="";
@@ -1288,3 +1270,5 @@ $result = "$output_folder/agat_sq_stat_basic_1.gff";
     check_diff( $outtmp, $result, "output $script" );
 }
 
+
+done_testing();

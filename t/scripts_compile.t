@@ -7,7 +7,9 @@ use lib "$Bin/lib";
 use File::Spec::Functions qw(catdir catfile);
 use Cwd qw(abs_path);
 use AGAT::TestUtilities qw(setup_tempdir check_diff);
-our $BIN_DIR;
+
+my $root    = abs_path(catdir($Bin, '..'));
+my $BIN_DIR = catdir($root, 'bin');
 
 =head1 DESCRIPTION
 
@@ -15,27 +17,7 @@ Test to see if all script in the bin file can be compiled without error.
 
 =cut
 
-################################################################################
-#   set number of test according to number of scripts
-my $nb_test;
-BEGIN{
-  my $root = abs_path(catdir($Bin, '..'));
-  my $bin_dir = catdir($root, 'bin');
-  opendir (DIR, $bin_dir) or die $!;
-  while (my $file = readdir(DIR)) {
-     # Use a regular expression to ignore files beginning with a period
-     next if ($file =~ m/^\./);
-
-     #add exe file
-     $nb_test++;
-  }
-  closedir(DIR);
-  $BIN_DIR = $bin_dir;
-}
-#
-################################################################################
-
-use Test::More tests => $nb_test ;
+use Test::More;
 
 # foreach script in the bin, let run the test
 opendir (DIR, $BIN_DIR) or die $!;
@@ -51,3 +33,5 @@ while (my $file = readdir(DIR)) {
    }
 }
 closedir(DIR);
+
+done_testing();
