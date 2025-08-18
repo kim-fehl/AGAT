@@ -6,6 +6,7 @@ use Test::More tests => 9;
 use FindBin qw($Bin);
 use File::Spec::Functions qw(catdir catfile);
 use Cwd qw(abs_path);
+use AGAT::TestTempDir qw(setup_tempdir);
 
 =head1 DESCRIPTION
 
@@ -27,9 +28,6 @@ my $root = abs_path(catdir($Bin, '..'));
 my $script_agat = $script_prefix . catfile($root, 'bin', 'agat');
 my $input_folder = catdir($Bin, 'gff_other', 'in');
 my $output_folder = catdir($Bin, 'gff_other', 'out');
-my $pathtmp = 'tmp.gff'; # path file where to save temporary output
-my $config = 'agat_config.yaml';
-
 # remove config in local folder if exists and potential tmp file already existing
 
 sub check_diff {
@@ -42,80 +40,117 @@ sub check_diff {
 }
 
 # -------- test gzip file and contain fasta --------
-$script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
-my $correct_output = "$output_folder/zip_and_fasta_correct_output.gff";
+{
+    my $dir = setup_tempdir();
+    my $pathtmp = catfile($dir, 'tmp.gff');
+    $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
+    my $correct_output = "$output_folder/zip_and_fasta_correct_output.gff";
 
-system("$script --gff " . catfile($input_folder, 'zip_and_fasta.gff.gz') . " -o $pathtmp  2>&1 1>/dev/null");
+    system("$script --gff " . catfile($input_folder, 'zip_and_fasta.gff.gz') . " -o $pathtmp  2>&1 1>/dev/null");
 
-#run test
-check_diff( $pathtmp, $correct_output, "zip_and_fasta check" );
+    #run test
+    check_diff( $pathtmp, $correct_output, "zip_and_fasta check" );
+}
 
 # -------- test tabix output sorting --------
-$script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
-$correct_output = "$output_folder/1_agat_tabix.gff";
+{
+    my $dir = setup_tempdir();
+    my $pathtmp = catfile($dir, 'tmp.gff');
+    $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
+    my $correct_output = "$output_folder/1_agat_tabix.gff";
 
-system("$script_agat config --expose --tabix 2>&1 1>/dev/null");
-system("$script --gff " . catfile($Bin, 'scripts_output', 'in', '1.gff') . " -o $pathtmp 2>&1 1>/dev/null");
+    system("$script_agat config --expose --tabix 2>&1 1>/dev/null");
+    system("$script --gff " . catfile($Bin, 'scripts_output', 'in', '1.gff') . " -o $pathtmp 2>&1 1>/dev/null");
 
-#run test
-check_diff( $pathtmp, $correct_output, "tabix check" );
+    #run test
+    check_diff( $pathtmp, $correct_output, "tabix check" );
+}
 
 # -------- Parent ID already used by same level feature --------
-$script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
-$correct_output = "$output_folder/issue329.gff";
+{
+    my $dir = setup_tempdir();
+    my $pathtmp = catfile($dir, 'tmp.gff');
+    $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
+    my $correct_output = "$output_folder/issue329.gff";
 
-system("$script --gff " . catfile($input_folder, 'issue329.gff') . " -o $pathtmp 2>&1 1>/dev/null");
+    system("$script --gff " . catfile($input_folder, 'issue329.gff') . " -o $pathtmp 2>&1 1>/dev/null");
 
-#run test
-check_diff( $pathtmp, $correct_output, "issue329 check" );
+    #run test
+    check_diff( $pathtmp, $correct_output, "issue329 check" );
+}
 
 # -------- Issue 368 avoid seq_id 0 replaced by SEQ --------
-$script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
-$correct_output = "$output_folder/issue368.gff";
+{
+    my $dir = setup_tempdir();
+    my $pathtmp = catfile($dir, 'tmp.gff');
+    $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
+    my $correct_output = "$output_folder/issue368.gff";
 
-system("$script --gff " . catfile($input_folder, 'issue368.gff') . " -o $pathtmp 2>&1 1>/dev/null");
+    system("$script --gff " . catfile($input_folder, 'issue368.gff') . " -o $pathtmp 2>&1 1>/dev/null");
 
-#run test
-check_diff( $pathtmp, $correct_output, "issue368 check" );
+    #run test
+    check_diff( $pathtmp, $correct_output, "issue368 check" );
+}
 
 # -------- Issue 389 very wierd --------
-$script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
-$correct_output = "$output_folder/issue389.gff";
+{
+    my $dir = setup_tempdir();
+    my $pathtmp = catfile($dir, 'tmp.gff');
+    $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
+    my $correct_output = "$output_folder/issue389.gff";
 
-system("$script --gff " . catfile($input_folder, 'issue389.gff') . " -o $pathtmp 2>&1 1>/dev/null");
+    system("$script --gff " . catfile($input_folder, 'issue389.gff') . " -o $pathtmp 2>&1 1>/dev/null");
 
-#run test
-check_diff( $pathtmp, $correct_output, "issue389 check" );
+    #run test
+    check_diff( $pathtmp, $correct_output, "issue389 check" );
+}
 
 # --------- Issue 441 transccipt_id used for GTF while L2 L1 created from L3 with isoforms ----
-$script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
-$correct_output = "$output_folder/issue441.gtf";
+{
+    my $dir = setup_tempdir();
+    my $pathtmp = catfile($dir, 'tmp.gff');
+    $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
+    my $correct_output = "$output_folder/issue441.gtf";
 
-system("$script_agat config --expose --output_format gtf 2>&1 1>/dev/null");
-system("$script --g " . catfile($input_folder, 'issue441.gtf') . " -o $pathtmp  2>&1 1>/dev/null");
+    system("$script_agat config --expose --output_format gtf 2>&1 1>/dev/null");
+    system("$script --g " . catfile($input_folder, 'issue441.gtf') . " -o $pathtmp  2>&1 1>/dev/null");
 
-check_diff( $pathtmp, $correct_output, "issue441 check" );
+    check_diff( $pathtmp, $correct_output, "issue441 check" );
+}
 
 # --------- Issue 448 bioperl adding extra empty ID attribute that mess up AGAT (only when input parsed with version 2 and 2.5)  ----
-$script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
-$correct_output = "$output_folder/issue448.gtf";
+{
+    my $dir = setup_tempdir();
+    my $pathtmp = catfile($dir, 'tmp.gff');
+    $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
+    my $correct_output = "$output_folder/issue448.gtf";
 
-system("$script_agat config --expose --output_format gtf 2>&1 1>/dev/null");
-system("$script --g " . catfile($input_folder, 'issue448.gtf') . " -o $pathtmp  2>&1 1>/dev/null");
+    system("$script_agat config --expose --output_format gtf 2>&1 1>/dev/null");
+    system("$script --g " . catfile($input_folder, 'issue448.gtf') . " -o $pathtmp  2>&1 1>/dev/null");
 
-check_diff( $pathtmp, $correct_output, "issue448 check" );
+    check_diff( $pathtmp, $correct_output, "issue448 check" );
+}
 
-$correct_output = "$output_folder/issue448.gff";
-system("$script --g " . catfile($input_folder, 'issue448.gtf') . " -o $pathtmp  2>&1 1>/dev/null");
+{
+    my $dir = setup_tempdir();
+    my $pathtmp = catfile($dir, 'tmp.gff');
+    $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
+    my $correct_output = "$output_folder/issue448.gff";
 
-check_diff( $pathtmp, $correct_output, "issue448 check" );
+    system("$script --g " . catfile($input_folder, 'issue448.gtf') . " -o $pathtmp  2>&1 1>/dev/null");
+
+    check_diff( $pathtmp, $correct_output, "issue448 check" );
+}
 
 # --------- Issue 457 multi-values attributes (gene_name "26266" "MT-TL1";) can be deflated to be compliant with GTF and CellRanger
+{
+    my $dir = setup_tempdir();
+    my $pathtmp = catfile($dir, 'tmp.gff');
+    $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gff2gtf.pl');
+    my $correct_output = "$output_folder/issue457.gtf";
 
-$script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gff2gtf.pl');
-$correct_output = "$output_folder/issue457.gtf";
+    system("$script_agat config --expose --deflate_attribute 2>&1 1>/dev/null");
+    system("$script --gff " . catfile($input_folder, 'issue457.gff') . " -o $pathtmp  2>&1 1>/dev/null");
 
-system("$script_agat config --expose --deflate_attribute 2>&1 1>/dev/null");
-system("$script --gff " . catfile($input_folder, 'issue457.gff') . " -o $pathtmp  2>&1 1>/dev/null");
-
-check_diff( $pathtmp, $correct_output, "issue457 check" );
+    check_diff( $pathtmp, $correct_output, "issue457 check" );
+}
