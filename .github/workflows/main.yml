@@ -32,6 +32,7 @@ jobs:
       #- name: Checkout AGAT
       - uses: actions/checkout@v2
       - name: Setup Perl
+        id: setup-perl
         uses: shogo82148/actions-setup-perl@v1
         with:
             perl-version: '5.36'
@@ -43,6 +44,15 @@ jobs:
         if: ${{ failure() }}
         with:
           run: cat /home/runner/.cpanm/build.log
+      - name: Cache Perl modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cpanm
+            ~/perl5
+          key: ${{ runner.os }}-perl-${{ steps.setup-perl.outputs['perl-version'] }}-${{ hashFiles('cpanfile','Makefile.PL') }}
+          restore-keys: |
+            ${{ runner.os }}-perl-${{ steps.setup-perl.outputs['perl-version'] }}-
       - name: install AGAT deps
         run: cpanm --installdeps --notest --force .
       - name: test
@@ -74,6 +84,7 @@ jobs:
       # Use of Devel::Cover@1.44 because newer versions take in account all scripts (even those we just do a -h). It drops the coverage ~5%. I would improve testing before unpinning this version.
       - uses: actions/checkout@v2
       - name: Setup Perl
+        id: setup-perl
         uses: shogo82148/actions-setup-perl@v1
         with:
             perl-version: '5.30'
@@ -85,6 +96,15 @@ jobs:
         if: ${{ failure() }}
         with:
           run: cat /home/runner/.cpanm/build.log
+      - name: Cache Perl modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cpanm
+            ~/perl5
+          key: ${{ runner.os }}-perl-${{ steps.setup-perl.outputs['perl-version'] }}-${{ hashFiles('cpanfile','Makefile.PL') }}
+          restore-keys: |
+            ${{ runner.os }}-perl-${{ steps.setup-perl.outputs['perl-version'] }}-
       - name: install AGAT deps
         run: cpanm --installdeps --notest --force .
       - name: test
