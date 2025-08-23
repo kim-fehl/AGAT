@@ -42,6 +42,11 @@ cpm install -L local --no-test "${DEVEL_FLAG[@]}" \
   --workers "$(nproc 2>/dev/null || echo 2)" \
   --show-build-log-on-failure
 
+# 5b) Column-aware diff tool
+if command -v npm >/dev/null 2>&1; then
+  npm install --global --prefix local daff >/dev/null 2>&1 || true
+fi
+
 # 6) Build (Makefile + compile steps as needed)
 perl Makefile.PL
 make -j"$(nproc 2>/dev/null || echo 2)"

@@ -21,9 +21,22 @@ sub setup_tempdir {
 }
 
 sub check_diff {
-    my ( $got, $expected, $label, $opts ) = @_;
+    my ( $got, $expected, $label, $opts, $use_daff ) = @_;
     $opts //= '';
-    my $diff_output = qx(diff $opts $got $expected 2>&1);
+
+    $use_daff = $ENV{AGAT_USE_DAFF} unless defined $use_daff;
+
+    my $cmd;
+    if ($use_daff) {
+        my $daff = qx(command -v daff 2>/dev/null);
+        chomp $daff;
+        if ($daff) {
+            $cmd = "daff diff $got $expected";
+        }
+    }
+    $cmd ||= "diff $opts $got $expected";
+
+    my $diff_output = qx($cmd 2>&1);
     my $exit_code   = $? >> 8;
     diag("Diff output:\n$diff_output") if $exit_code != 0;
     ok( $exit_code == 0, $label );
