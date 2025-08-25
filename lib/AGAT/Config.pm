@@ -165,8 +165,8 @@ sub validate_config{
                 $instance->config_root->load_data($cfg);
         }
 
-        eval { $instance->config_root->validate; 1 } or die "Configuration validation failed: $@";
-        return $instance;
+       eval { $instance->check; 1 } or die "Configuration validation failed: $@";
+       return $instance;
 }
 
 sub apply_cli{
