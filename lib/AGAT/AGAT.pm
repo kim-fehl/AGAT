@@ -356,7 +356,11 @@ sub handle_config {
                         my $instance    = load_config({ config_file => $config_file });
                         apply_cli($instance, $opts);
                         validate_config({ config => $instance });
-                        my $conf_hash = $instance->config_root->dump_tree(skip_auto_write => 1);
+                        my $conf_hash;
+                        {
+                                local $SIG{__WARN__} = sub {};
+                                $conf_hash = $instance->config_root->dump_as_data( full_dump => 1 );
+                        }
                         my $config_new_name = $opts->{output};
                         if ($config_new_name) {
                                 expose_config_hash({ config_in => $conf_hash, config_file_out => $config_new_name });

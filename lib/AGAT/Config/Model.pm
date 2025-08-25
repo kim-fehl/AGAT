@@ -31,13 +31,14 @@ my $schema = {
         value_type  => 'boolean',
         default     => 1,
         description => 'Write log file',
+        cli         => 'log!',
     },
     log_path => {
         type        => 'leaf',
         value_type  => 'uniline',
         default     => '',
         description => 'Log file path',
-        cli => 'log_path|log=s',
+        cli         => 'log_path=s',
     },
     debug => {
         type        => 'leaf',

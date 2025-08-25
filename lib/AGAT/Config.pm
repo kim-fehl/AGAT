@@ -57,6 +57,11 @@ sub load_config{
 
         if (-e $path){
                 my $data = LoadFile($path);
+
+                # Ensure all expected keys are present in the file
+                my @missing = grep { ! exists $data->{$_} } keys %{ AGAT::Config::Model::schema() };
+                die "Missing config keys: @missing" if @missing;
+
                 eval { $root->load_data($data); 1 } or die "Invalid configuration file $path: $@";
         }
 
@@ -165,10 +170,8 @@ sub validate_config{
                 $instance->config_root->load_data($cfg);
         }
 
-       # load_data performs validation, so loading into a fresh instance is
-       # sufficient to verify the configuration. Any constraint violations
-       # will be thrown as exceptions during load_data above.
-       return $instance;
+        $instance->deep_check;
+        return $instance;
 }
 
 sub apply_cli{
@@ -179,19 +182,24 @@ sub apply_cli{
 
         for my $elt_name ($root->get_element_names){
                 my $spec = $schema->{$elt_name}{cli} or next;
-                my ($key) = split /[|=]/, $spec;
+                my $key = $spec;
+                $key =~ s/[=|].*//;    # remove spec details and aliases
+                $key =~ s/!$//;        # strip boolean marker
                 next unless exists $cli->{$key};
                 my $elt = $root->fetch_element($elt_name);
                 my $val = $cli->{$key};
                 if ($elt->get_type eq 'list'){
                         $val = ref $val eq 'ARRAY' ? $val : [ split /,/, $val ];
+                        $elt->load_data($val);
+                } else {
+                        $elt->store($val);
                 }
-                $elt->store($val);
                 delete $remaining{$key};
         }
 
         for my $k (keys %remaining){
                 next if $k =~ /^(config|out|outfile|output|help|expose|quiet)$/;
+                next if exists $schema->{$k};
                 die "Unknown option: $k";
         }
 

@@ -7,7 +7,7 @@ use AGAT::AGAT qw(common_spec);
 
 my @args = (
     '--config', 'foo.yaml', '--output', 'bar',
-    '--log', 'baz.log', '--quiet',
+    '--log_path', 'baz.log', '--quiet',
     '--extra', 'val'
 );
 local @ARGV = @args;
