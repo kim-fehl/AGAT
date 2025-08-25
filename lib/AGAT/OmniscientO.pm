@@ -41,34 +41,34 @@ convert_omniscient_to_ensembl_style write_top_features prepare_gffout prepare_fi
 
 # prepare file handler to print GFF
 sub prepare_gffout{
-	my ($config, $outfile) = @_;
+        my ($config, $outfile) = @_;
 
-	# Selection which version param to use according to output format asked for
-	my $version;
+        my $format  = lc($config->{output_format} // 'gff');
+        my $version;
+        if ( $format eq 'gff') {
+                $version = $config->{gff_output_version} // 3;
+        }
+        else {
+                $version = $config->{gtf_output_version} // 'relax';
+        }
 
-	if ( $config->{output_format} eq "gff"){
-	 	$version = $config->{gff_output_version}
-	} else {
-		$version = $config->{gtf_output_version}
-	}
-	
-	my $gffout;
+        my $gffout;
         if ($outfile) {
                 # check existence
-          if(-f $outfile){
+                if (-f $outfile) {
                         my $msg = "File $outfile already exist.\n";
                         warn $msg if $AGAT::AGAT::CONFIG->{verbose};
                         exit;
                 }
                 else {
                         open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-                        $gffout = AGAT::BioperlGFF->new(-fh => $fh, -type => $config->{output_format}, -version => $version);
+                        $gffout = AGAT::BioperlGFF->new(-fh => $fh, -type => $format, -version => $version);
                 }
         }
-	else{
-		$gffout = AGAT::BioperlGFF->new(-fh => \*STDOUT, -type => $config->{output_format}, -version => $version);
-	}
-	return $gffout;
+        else {
+                $gffout = AGAT::BioperlGFF->new(-fh => \*STDOUT, -type => $format, -version => $version);
+        }
+        return $gffout;
 }
 
 
