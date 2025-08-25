@@ -170,7 +170,7 @@ sub validate_config{
                 $instance->config_root->load_data($cfg);
         }
 
-        $instance->deep_check;
+        $instance->check;
         return $instance;
 }
 
@@ -189,8 +189,8 @@ sub apply_cli{
                 my $elt = $root->fetch_element($elt_name);
                 my $val = $cli->{$key};
                 if ($elt->get_type eq 'list'){
-                        $val = ref $val eq 'ARRAY' ? $val : [ split /,/, $val ];
-                        $elt->load_data($val);
+                        my @vals = ref $val eq 'ARRAY' ? @$val : split /,/, $val;
+                        $root->load_data({ $elt_name => \@vals });
                 } else {
                         $elt->store($val);
                 }

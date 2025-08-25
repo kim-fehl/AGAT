@@ -257,7 +257,7 @@ sub get_agat_config{
         # Load and check the configuration
         my $instance = load_config({ config_file => $config_file_checked});
         validate_config({ config => $instance });
-        my $config = $instance->config_root->dump_tree(skip_auto_write => 1);
+        my $config = $instance->config_root->dump_as_data;
 
         my $verbosity = defined $cli_verbose ? $cli_verbose : $config->{verbose};
         if ($verbosity > 0){
