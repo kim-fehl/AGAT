@@ -16,6 +16,7 @@ use AGAT::OmniscientI;
 use AGAT::OmniscientO;
 use AGAT::OmniscientTool;
 use AGAT::Config;
+use AGAT::Config::Model ();
 use AGAT::Levels;
 use AGAT::OmniscientStat;
 use AGAT::Utilities;
@@ -154,7 +155,7 @@ sub get_log_path {
         my ($common, $config) = @_;
         $common ||= {};
         $config ||= {};
-        return $common->{log} if defined $common->{log};
+        return $common->{log_path} if defined $common->{log_path};
         return undef if defined $config->{log} && !$config->{log};
         return $config->{log_path} if $config->{log_path};
         my ($file) = $0 =~ /([^\\\/]+)$/;
@@ -163,18 +164,23 @@ sub get_log_path {
 
 # Return shared Getopt::Long::Descriptive option descriptors
 sub common_spec {
-        return (
-                [ 'config|c=s',                'Configuration file' ],
-                [ 'out|o|outfile|output=s',    'Output file or folder' ],
-                [ 'log=s',                     'Log file path' ],
-                [ 'verbose|v=i',               'Verbosity level' ],
-                [ 'debug',                     'Enable debug output' ],
-                [ 'progress_bar|progressbar!', 'Show progress bar', { default => undef, hidden => 1 } ],
-                [ 'quiet|q',                   'Disable progress bar and verbose output',
-                        { implies => { debug => 0, verbose => 0, progress_bar => 0 } } ],
-                [ 'help|h',                    'Show this help', { shortcircuit => 1 } ],
-                { getopt_conf => ['pass_through'] },
-        );
+        my $schema = AGAT::Config::Model::schema();
+        my @spec;
+        for my $name (sort keys %$schema){
+                my $cli = $schema->{$name}{cli} or next;
+                push @spec, [ $cli, $schema->{$name}{description} ];
+        }
+        push @spec,
+          [ 'config|c=s',                'Configuration file' ],
+          [ 'out|o|outfile|output=s',    'Output file or folder' ],
+          [ 'help|h',                    'Show this help', { shortcircuit => 1 } ],
+          [
+                'quiet|q',
+                'Disable progress bar and verbose output',
+                { implies => { debug => 0, verbose => 0, progress_bar => 0 } }
+          ],
+          { getopt_conf => ['pass_through'] };
+        return @spec;
 }
 
 # Merge CLI values with configuration defaults and compute log path
@@ -223,7 +229,6 @@ sub resolve_common_options {
         });
 
         my $log_path = get_log_path( \%cli, $config );
-        $cli{log_path} = delete $cli{log} if exists $cli{log};
 
         for my $k (qw(verbose log_path debug progress_bar)) {
                 $config->{"//=${k}"} = delete $config->{$k} if exists $config->{$k};
@@ -250,8 +255,9 @@ sub get_agat_config{
                                               config_file_in => $config_file_provided,
                                               verbose => 0});
         # Load and check the configuration
-        my $config = load_config({ config_file => $config_file_checked});
-        check_config({ config => $config});
+        my $instance = load_config({ config_file => $config_file_checked});
+        validate_config({ config => $instance });
+        my $config = $instance->config_root->dump_tree(skip_auto_write => 1);
 
         my $verbosity = defined $cli_verbose ? $cli_verbose : $config->{verbose};
         if ($verbosity > 0){
@@ -333,222 +339,41 @@ sub handle_levels {
 
 # Function to manipulate config from the agat caller
 sub handle_config {
-		my ($general, $config, $args) = @_;
+                my ($general, $config, $args) = @_;
 
-		my $expose = $general->{configs}[-1]{expose};
-		my $help = $general->{configs}[-1]{help};
+                my $opts   = $general->{configs}[-1];
+                my $expose = $opts->{expose};
+                my $help   = $opts->{help};
 
-		# config file option
-		my $verbose = $general->{configs}[-1]{verbose};
-		my $progress_bar = $general->{configs}[-1]{progress_bar};
-		my $config_new_name = $general->{configs}[-1]{output};
-		my $log = $general->{configs}[-1]{log};
-                my $debug = $general->{configs}[-1]{debug};
-                my $quiet = $general->{configs}[-1]{quiet};
-                my $tabix = $general->{configs}[-1]{tabix};
-                my $merge_loci = $general->{configs}[-1]{merge_loci};
-                my $throw_fasta = $general->{configs}[-1]{throw_fasta};
-		my $force_gff_input_version = $general->{configs}[-1]{force_gff_input_version};
-		my $output_format = $general->{configs}[-1]{output_format};
-		my $gff_output_version = $general->{configs}[-1]{gff_output_version};
-		my $gtf_output_version = $general->{configs}[-1]{gtf_output_version};
-		my $deflate_attribute = $general->{configs}[-1]{deflate_attribute};
-		my $create_l3_for_l2_orphan = $general->{configs}[-1]{create_l3_for_l2_orphan};
-		my $clean_attributes_from_template = $general->{configs}[-1]{clean_attributes_from_template};
-		my $locus_tag = $general->{configs}[-1]{locus_tag};
-		my $check_sequential = $general->{configs}[-1]{check_sequential};
-		my $check_l2_linked_to_l3 = $general->{configs}[-1]{check_l2_linked_to_l3};
-		my $check_l1_linked_to_l2 = $general->{configs}[-1]{check_l1_linked_to_l2};
-		my $remove_orphan_l1 = $general->{configs}[-1]{remove_orphan_l1};
-		my $check_all_level3_locations = $general->{configs}[-1]{check_all_level3_locations};
-		my $check_cds = $general->{configs}[-1]{check_cds};
-		my $check_exons = $general->{configs}[-1]{check_exons};
-		my $check_utrs = $general->{configs}[-1]{check_utrs};
-		my $check_all_level2_locations = $general->{configs}[-1]{check_all_level2_locations};
-		my $check_all_level1_locations = $general->{configs}[-1]{check_all_level1_locations};
-                my $check_identical_isoforms = $general->{configs}[-1]{check_identical_isoforms};
-                my $prefix_new_id = $general->{configs}[-1]{prefix_new_id};
-
-                if ($quiet) {
-                        $verbose = 0;
-                        $progress_bar = 0;
-                        $debug = 0;
+                if ($opts->{quiet}) {
+                        $opts->{verbose}      = 0;
+                        $opts->{progress_bar} = 0;
+                        $opts->{debug}        = 0;
                 }
 
-                # Deal with Expose feature OPTION
-                if($expose){
-                        my $config_file = get_config({type => "original", verbose => $verbose});
-			my $config = load_config({ config_file => $config_file});
-                        print "Config loaded\n" if $verbose;
-
-			# set config params on the fly
-			my $modified_on_the_fly = undef;
-
-			# integer 0-4
-			if( defined($verbose) ){
-				$config->{ verbose } = $verbose;
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($progress_bar) ){
-				$config->{ progress_bar } = _make_bolean($progress_bar);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($log) ){
-				$config->{ log } = _make_bolean($log);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($debug) ){
-				$config->{ debug } = _make_bolean($debug);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($tabix) ){
-				$config->{ tabix } = _make_bolean($tabix);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($merge_loci) ){
-				$config->{ merge_loci } = _make_bolean($merge_loci);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($throw_fasta) ){
-				$config->{ throw_fasta } = _make_bolean($throw_fasta);
-				$modified_on_the_fly = 1;
-			}
-			# integer
-			if( defined($force_gff_input_version) ){
-				$config->{ force_gff_input_version } = $force_gff_input_version;
-				$modified_on_the_fly = 1;
-			}
-			# string
-			if( defined($output_format) ){
-				$config->{ output_format } = lc($output_format);
-				$modified_on_the_fly = 1;
-			}
-			# 
-			# integer
-			if( defined($gff_output_version) ){
-				$config->{ gff_output_version } = $gff_output_version;
-				$modified_on_the_fly = 1;
-			}
-			# string
-			if( defined($gtf_output_version) ){
-				$config->{ gtf_output_version } = lc($gtf_output_version);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($deflate_attribute) ){
-				$config->{ deflate_attribute } = _make_bolean($deflate_attribute);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($create_l3_for_l2_orphan) ){
-				$config->{ create_l3_for_l2_orphan } = _make_bolean($create_l3_for_l2_orphan);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($clean_attributes_from_template) ){
-				$config->{ clean_attributes_from_template } = _make_bolean($clean_attributes_from_template);
-				$modified_on_the_fly = 1;
-			}
-			# string
-			if( defined($locus_tag) ){
-				my @list = split(/,/, $locus_tag);
-				$config->{ locus_tag } = \@list;
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($check_sequential) ){
-				$config->{ check_sequential } = _make_bolean($check_sequential);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($check_l2_linked_to_l3) ){
-				$config->{ check_l2_linked_to_l3 } = _make_bolean($check_l2_linked_to_l3);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($check_l1_linked_to_l2) ){
-				$config->{ check_l1_linked_to_l2 } = _make_bolean($check_l1_linked_to_l2);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($remove_orphan_l1) ){
-				$config->{ remove_orphan_l1 } = _make_bolean($remove_orphan_l1);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($check_all_level3_locations) ){
-				$config->{ check_all_level3_locations } = _make_bolean($check_all_level3_locations);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($check_cds) ){
-				$config->{ check_cds } = _make_bolean($check_cds);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($check_exons) ){
-				$config->{ check_exons } = _make_bolean($check_exons);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($check_utrs) ){
-				$config->{ check_utrs } = _make_bolean($check_utrs);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($check_all_level2_locations) ){
-				$config->{ check_all_level2_locations } = _make_bolean($check_all_level2_locations);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($check_all_level1_locations) ){
-				$config->{ check_all_level1_locations } = _make_bolean($check_all_level1_locations);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($check_identical_isoforms) ){
-				$config->{ check_identical_isoforms } = _make_bolean($check_identical_isoforms);
-				$modified_on_the_fly = 1;
-			}
-			# string
-			if( defined($prefix_new_id) ){
-				$config->{ prefix_new_id } = $prefix_new_id;
-				$modified_on_the_fly = 1;
-			}
-
-			if ($modified_on_the_fly) {
-                                        print "Config modified\n" if $verbose;
-			}
-
-			# check config
-			check_config({ config => $config});
-                        print "Config checked\n" if $verbose;
-
-			 
-			
-                        if ($modified_on_the_fly) {
-                                expose_config_hash({ config_in => $config, config_file_out => $config_new_name})
-                        } else {
-                                expose_config_file({config_file_in => $config_file, config_file_out => $config_new_name, verbose => $verbose});
+                if ($expose) {
+                        my $config_file = get_config({ type => "original", verbose => $opts->{verbose} });
+                        my $instance    = load_config({ config_file => $config_file });
+                        apply_cli($instance, $opts);
+                        validate_config({ config => $instance });
+                        my $conf_hash = $instance->config_root->dump_tree(skip_auto_write => 1);
+                        my $config_new_name = $opts->{output};
+                        if ($config_new_name) {
+                                expose_config_hash({ config_in => $conf_hash, config_file_out => $config_new_name });
                         }
+                        else {
+                                expose_config_file({
+                                        config_file_in  => $config_file,
+                                        config_file_out => $config_new_name,
+                                        verbose         => $opts->{verbose}
+                                });
+                        }
+                        my $config_file_used = $config_new_name // "agat_config.yaml";
+                        print "Config file written in your working directory ($config_file_used)\n" if $opts->{verbose};
+                }
 
-			# inform user
-			my $config_file_used;
-			if($config_new_name){
-				$config_file_used = $config_new_name;
-			} else { $config_file_used = "agat_config.yaml"; }
-                        print "Config file written in your working directory ($config_file_used)\n" if $verbose;
-		}
-
-		# if help was called (or not arg provided) we let AppEaser continue to print help
-		my $nb_args = keys %{$general->{configs}[-1]};
-		if(! $help and $nb_args != 0){ exit 0;}
+                my $nb_args = keys %{$opts};
+                if ( !$help and $nb_args != 0 ) { exit 0; }
 
 }
 

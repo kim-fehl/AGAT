@@ -13,19 +13,13 @@ my @args = (
 local @ARGV = @args;
 my ($opt) = describe_options('test %o', common_spec());
 
-is_deeply(
-    { %{$opt} },
-    {
-        config       => 'foo.yaml',
-        out          => 'bar',
-        log          => 'baz.log',
-        verbose      => 0,
-        debug        => 0,
-        progress_bar => 0,
-        quiet        => 1,
-    },
-    'parsed values',
-);
+is( $opt->{config}, 'foo.yaml', 'config path parsed' );
+is( $opt->{out},    'bar',      'output path parsed' );
+is( $opt->{log_path}, 'baz.log', 'log path parsed' );
+is( $opt->{verbose}, 0, 'quiet forces verbose 0' );
+is( $opt->{debug}, 0,   'quiet disables debug' );
+is( $opt->{progress_bar}, 0, 'quiet disables progress bar' );
+is( $opt->{quiet}, 1, 'quiet flag set' );
 is_deeply( \@ARGV, ['--extra', 'val'], 'remaining args preserved' );
 
 done_testing;
