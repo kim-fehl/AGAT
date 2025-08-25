@@ -23,6 +23,13 @@ Discussions on how to proceed about that issue take place in the comment section
 
 Some of the work might have been done already by somebody, hence we avoid unnecessary work duplication and a waste of time and effort. Other reason for discussing the issue beforehand is to communicate with the team the changes as some of the features might impact different components, and we can plan accordingly.
 
+## Column-aware test diffs
+
+Tests that compare tabular data can use the [daff](https://github.com/paulfitz/daff)
+utility for column-aware diffs. Set the environment variable
+`AGAT_USE_DAFF=1` to enable this behaviour and ensure the `daff` command
+is installed (the bootstrap scripts install it via `npm` by default).
+
 ## How we work with Git
 
 All work should take place in a dedicated branch with a short descriptive name.

@@ -10,6 +10,11 @@ install_share dist => 'share';
 # ensure temporary test directories are isolated
 $ENV{HARNESS_PERL_SWITCHES} = join ' ', '-I' . abs_path('t/lib') . ' -MAGAT::TestUtilities', ($ENV{HARNESS_PERL_SWITCHES} // '');
 
+# warn if column-aware diffs are requested but daff is missing
+if ( $ENV{AGAT_USE_DAFF} && system('daff version > /dev/null 2>&1') != 0 ) {
+  warn "AGAT_USE_DAFF is set but 'daff' was not found in PATH. Install it with 'npm install -g daff' or via the bootstrap script.\n";
+}
+
 # ------------------- CREATE LIST OF EXE FILE ----------------------------------
 
 # define function to retrieve list of exe files

@@ -4,4 +4,5 @@ set -euo pipefail
 cd "$(git rev-parse --show-toplevel 2>/dev/null || echo .)"
 eval "$(perl -Mlocal::lib=local)"
 export PATH="$PWD/local/bin:$PATH"
+export AGAT_USE_DAFF=${AGAT_USE_DAFF:-1}
 exec "$@"
