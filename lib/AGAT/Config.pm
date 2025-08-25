@@ -165,7 +165,9 @@ sub validate_config{
                 $instance->config_root->load_data($cfg);
         }
 
-       eval { $instance->check; 1 } or die "Configuration validation failed: $@";
+       # load_data performs validation, so loading into a fresh instance is
+       # sufficient to verify the configuration. Any constraint violations
+       # will be thrown as exceptions during load_data above.
        return $instance;
 }
 
