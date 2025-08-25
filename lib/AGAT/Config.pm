@@ -170,8 +170,8 @@ sub validate_config{
                 $instance->config_root->load_data($cfg);
         }
 
-        $instance->check;
-        return $instance;
+       $instance->deep_check;
+       return $instance;
 }
 
 sub apply_cli{
