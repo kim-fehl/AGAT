@@ -10,10 +10,12 @@ use File::ShareDir ':ALL';
 use AGAT::Utilities;
 use Cwd qw(cwd);
 use Exporter;
+use Config::Model;
+use AGAT::Config::Model qw(build_model schema);
 
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw( load_config expose_config_file check_config get_config expose_config_hash );
+our @EXPORT = qw( load_config expose_config_file validate_config get_config expose_config_hash apply_cli );
 
 =head1 SYNOPSIS
 
@@ -45,30 +47,21 @@ my $config_file= ("agat_config.yaml");
 # @output: 1 => hash
 # @Remark: none
 sub load_config{
-	my ($args) = @_;
+        my ($args) = @_;
 
-	# -------------- INPUT --------------
-	# -- Declare all variables and fill them --
-	my ($verbose, $log, $debug, $path);
+        my $path = $args->{config_file} or do { warn "No config file provided!"; exit };
 
-	if( ! defined($args->{verbose}) ) { $verbose = undef;} else{ $verbose = $args->{verbose}; }
-	if( ! defined($args->{log}) ) { $log = undef;} else{ $log = $args->{log}; }
-	if( ! defined($args->{debug}) ) { $debug = undef;} else{ $debug = $args->{debug}; }
-	if( ! defined($args->{config_file}) ) { warn "No config file provided!"; exit;} else{ $path = $args->{config_file}; }
+        my $model = build_model();
+        my $instance = $model->instance( root_class_name => 'AGAT' );
+        my $root = $instance->config_root;
 
-	my $config = LoadFile($path);
+        if (-e $path){
+                my $data = LoadFile($path);
+                eval { $root->load_data($data); 1 } or die "Invalid configuration file $path: $@";
+        }
 
-	# check if all needed parameters are present
-	check_config({config => $config});
-
-	# false does not exists in perl, must be replaced by 0
-	foreach my $key (keys %{$config}){
-		if ( lc($config->{$key}) eq "false" ){
-			$config->{$key}=0;
-		}
-	}
-
-	return $config;
+        validate_config({ config => $instance });
+        return $instance;
 }
 
 # @Purpose: Select which config file to use (local or original shiped with AGAT)
@@ -159,166 +152,49 @@ sub expose_config_file{
 }
 
 # @Purpose: Check config value to be sure everything is set as expected
-sub check_config{
-	my ($args)=@_;
+sub validate_config{
+        my ($args) = @_;
+        my $cfg = $args->{config};
+        my $instance;
 
-	my ($config);
-	if( ! defined($args->{config}) ) { warn "Config file missing!\n";} else{ $config = $args->{config};}
-
-	# check config parameters
-	my $error;
-	if( exists_keys($config,("verbose") ) ){
-		if( $config->{ verbose } < 0 or $config->{ verbose } > 4){
-			print "Verbose parameter must be between 0 and 4.\n";
-			$error = 1;
-		}
-	}
-	else{
-		print "verbose parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( !  exists_keys($config,("progress_bar") ) ){
-		print "progress_bar parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-        if( !  exists_keys($config,("log") ) ){
-                print "log parameter missing in the configuration file.\n";
-                $error = 1;
+        if (ref $cfg && $cfg->isa('Config::Model::Instance')){
+                $instance = $cfg;
+        } else {
+                my $model = build_model();
+                $instance = $model->instance( root_class_name => 'AGAT' );
+                $instance->config_root->load_data($cfg);
         }
-        if( !  exists_keys($config,("log_path") ) ){
-                print "log_path parameter missing in the configuration file.\n";
-                $error = 1;
+
+        eval { $instance->config_root->validate; 1 } or die "Configuration validation failed: $@";
+        return $instance;
+}
+
+sub apply_cli{
+        my ($instance, $cli) = @_;
+        my $root = $instance->config_root;
+        my %known = map { $_ => 1 } $root->get_element_names;
+        my %remaining = %{$cli || {}};
+
+        for my $elt_name ($root->get_element_names){
+                my $elt = $root->fetch_element($elt_name);
+                my $ann = $elt->annotation || {};
+                my $spec = $ann->{cli} or next;
+                my ($key) = split /[|=]/, $spec;
+                next unless exists $cli->{$key};
+                my $val = $cli->{$key};
+                if ($elt->get_type eq 'list'){
+                        $val = ref $val eq 'ARRAY' ? $val : [ split /,/, $val ];
+                }
+                $elt->store($val);
+                delete $remaining{$key};
         }
-	if( !  exists_keys($config, ("debug") ) ){
-		print "debug parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( !  exists_keys($config, ("tabix") ) ){
-		print "tabix parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( !  exists_keys($config, ("merge_loci") ) ) {
-		print "merge_loci parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( !  exists_keys($config, ("throw_fasta") ) ) {
-		print "throw_fasta parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( exists_keys($config, ("force_gff_input_version") ) ) {
-		my %values = (0 => 1, 1 => 1, 2 => 1, 2.5 => 1, 3 => 1);
-		if (! exists_keys(\%values,($config->{ force_gff_input_version }) ) ) {
-			print "force_gff_input_version parameter must be 0, 1, 2, 2.5 or 3.\n";
-			$error = 1;
-		}
-	}
-	else{
-		print "force_gff_input_version parameter missing in the configuration file.\n";
-		$error = 1;
-	}
 
-	if( exists_keys($config, ("output_format") ) ) {
-		my %values = ( gff => 1, gtf => 1 ); # case was set to lowercase when loaded into hash
-		$config->{ output_format } = lc($config->{ output_format }); # set it to lowercase
-		if (! exists_keys(\%values,( $config->{ output_format } ) ) ) {
-			print "output_format parameter must be GFF or GTF.\n";
-			$error = 1;
-		}
-	}
-	else{
-		print "output_format parameter missing in the configuration file.\n";
-		$error = 1;
-	}
+        for my $k (keys %remaining){
+                next if $k =~ /^(config|out|outfile|output|help|expose|quiet)$/;
+                die "Unknown option: $k" if $known{$k};
+        }
 
-	if( exists_keys($config, ("gff_output_version") ) ) {
-		my %values = ( 1 => 1, 2 => 1, 2.5 => 1, 3 => 1 );
-		if (! exists_keys(\%values,($config->{ gff_output_version }) ) ) {
-			print "gff_output_version parameter must be 1, 2, 2.5 or 3.\n";
-			$error = 1;
-		}
-	}
-	else{
-		print "gff_output_version parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( exists_keys($config, ("gtf_output_version") ) ) {
-		my %values = ( 1 => 1, 2 => 1, 2.1 => 1, 2.2 => 1, 2.5 => 1, 3 => 1, relax => 1 );
-		if (! exists_keys(\%values,($config->{ gtf_output_version }) ) ) {
-			print "gtf_output_version parameter must be 1, 2, 2.1, 2.2, 2.5, 3 or relax.\n";
-			$error = 1;
-		}
-	}
-	else{
-		print "gtf_output_version parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( ! exists_keys($config, ("deflate_attribute") ) ) {
-		print "deflate_attribute parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( ! exists_keys($config, ("create_l3_for_l2_orphan") ) ) {
-		print "create_level3_for_level2_orphan parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( ! exists_keys($config, ("locus_tag") ) ) {
-		print "locus_tag parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( !  exists_keys($config, ("prefix_new_id") ) ) {
-		print "prefix_new_id parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( ! exists_keys($config, ("check_sequential") ) ) {
-		print "check_sequential parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( ! exists_keys($config, ("check_l2_linked_to_l3") ) ) {
-		print "check_l2_linked_to_l3 parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( ! exists_keys($config, ("check_l1_linked_to_l2") ) ) {
-		print "check_l1_linked_to_l2 parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( ! exists_keys($config, ("remove_orphan_l1") ) ) {
-		print "remove_orphan_l1 parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( ! exists_keys($config, ("check_all_level3_locations") ) ) {
-		print "check_all_level3_locations parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( ! exists_keys($config, ("check_cds") ) ) {
-		print "check_cds parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( ! exists_keys($config, ("check_exons") ) ) {
-		print "check_exons parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( ! exists_keys($config, ("check_utrs") ) ) {
-		print "check_utrs parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( ! exists_keys($config, ("check_all_level2_locations") ) ) {
-		print "check_all_level2_locations parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( ! exists_keys($config, ("check_all_level1_locations") ) ) {
-		print "check_all_level1_locations parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( ! exists_keys($config, ("check_identical_isoforms") ) ) {
-		print "check_identical_isoforms parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-	if( ! exists_keys($config, ("clean_attributes_from_template") ) ) {
-		print "clean_attributes_from_template parameter missing in the configuration file.\n";
-		$error = 1;
-	}
-
-	# Now exit if one confiuguration parameter is missing
-	if ($error){exit 1;}
+        return $instance;
 }
 
 1;
