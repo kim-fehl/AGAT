@@ -171,16 +171,15 @@ sub validate_config{
 
 sub apply_cli{
         my ($instance, $cli) = @_;
-        my $root = $instance->config_root;
-        my %known = map { $_ => 1 } $root->get_element_names;
+        my $root   = $instance->config_root;
+        my $schema = AGAT::Config::Model::schema();
         my %remaining = %{$cli || {}};
 
         for my $elt_name ($root->get_element_names){
-                my $elt = $root->fetch_element($elt_name);
-                my $ann = $elt->annotation || {};
-                my $spec = $ann->{cli} or next;
+                my $spec = $schema->{$elt_name}{cli} or next;
                 my ($key) = split /[|=]/, $spec;
                 next unless exists $cli->{$key};
+                my $elt = $root->fetch_element($elt_name);
                 my $val = $cli->{$key};
                 if ($elt->get_type eq 'list'){
                         $val = ref $val eq 'ARRAY' ? $val : [ split /,/, $val ];
@@ -191,7 +190,7 @@ sub apply_cli{
 
         for my $k (keys %remaining){
                 next if $k =~ /^(config|out|outfile|output|help|expose|quiet)$/;
-                die "Unknown option: $k" if $known{$k};
+                die "Unknown option: $k";
         }
 
         return $instance;

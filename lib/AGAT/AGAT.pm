@@ -167,8 +167,8 @@ sub common_spec {
         my $schema = AGAT::Config::Model::schema();
         my @spec;
         for my $name (sort keys %$schema){
-                my $ann = $schema->{$name}{annotation}{cli} or next;
-                push @spec, [ $ann, $schema->{$name}{description} ];
+                my $cli = $schema->{$name}{cli} or next;
+                push @spec, [ $cli, $schema->{$name}{description} ];
         }
         push @spec,
           [ 'config|c=s',                'Configuration file' ],
