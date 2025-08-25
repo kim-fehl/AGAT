@@ -2,7 +2,7 @@
 
 name: CI
 
-# Controls when the action will run. 
+# Controls when the action will run.
 # Triggers the workflow on push or pull request events
 on: [push, pull_request, workflow_dispatch]
 
@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:  
+jobs:
 
   # Run tests on Perl 5.36
   test:
@@ -23,20 +23,33 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    env:
+      PERL_VERSION: '5.36'
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: libdb-dev r-base
           version: 1.0
-        
+
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       #- name: Checkout AGAT
       - uses: actions/checkout@v2
+      - name: Cache Perl modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cpanm
+            ~/perl5
+          key: ${{ runner.os }}-perl-${{ env.PERL_VERSION }}-${{ hashFiles('cpanfile','Makefile.PL') }}
+          restore-keys: |
+            ${{ runner.os }}-perl-${{ env.PERL_VERSION }}-
       - name: Setup Perl
+        id: setup-perl
         uses: shogo82148/actions-setup-perl@v1
         with:
-            perl-version: '5.36'
+            perl-version: ${{ env.PERL_VERSION }}
             install-modules-with: cpanm
             install-modules-args: --notest --force
             install-modules: File::ShareDir::Install Getopt::Long::Descriptive
@@ -81,20 +94,33 @@ jobs:
     #container:
     #  image: perl:5.30
 
+    env:
+      PERL_VERSION: '5.30'
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: libdb-dev r-base
           version: 1.0
-        
+
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       # Use of Devel::Cover@1.44 because newer versions take in account all scripts (even those we just do a -h). It drops the coverage ~5%. I would improve testing before unpinning this version.
       - uses: actions/checkout@v2
+      - name: Cache Perl modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cpanm
+            ~/perl5
+          key: ${{ runner.os }}-perl-${{ env.PERL_VERSION }}-${{ hashFiles('cpanfile','Makefile.PL') }}
+          restore-keys: |
+            ${{ runner.os }}-perl-${{ env.PERL_VERSION }}-
       - name: Setup Perl
+        id: setup-perl
         uses: shogo82148/actions-setup-perl@v1
         with:
-            perl-version: '5.30'
+            perl-version: ${{ env.PERL_VERSION }}
             install-modules-with: cpanm
             install-modules-args: --notest --force
             install-modules: File::ShareDir::Install Getopt::Long::Descriptive Devel::Cover@1.44 Devel::Cover::Report::Coveralls
