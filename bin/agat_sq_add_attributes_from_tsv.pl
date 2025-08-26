@@ -65,7 +65,7 @@ while (<INPUT>) {
 
 	if ($line == 1){
 		$nb_header = scalar @splitline;
-             dual_print($log, "$nb_header headers\n");
+             dual_print($log, "$nb_header headers\n", 2);
 		my $cpt = 0;
 		foreach my $header_title (@splitline){
 			$header{$cpt++} = $header_title;

@@ -243,9 +243,9 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
 
                 my $location2 = $flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}->[0];
                 dual_print( $log, " location2 investigated:  @$location2\n");
-                dual_print( $log, " Original TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n");
-                dual_print( $log, " Original FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n");
-                dual_print( $log, " Original FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n");
+                dual_print( $log, " Original TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n", 2);
+                dual_print( $log, " Original FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n", 2);
+                dual_print( $log, " Original FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n", 2);
 
                 # keep track last locationB
                 my $last_locationB = undef;
@@ -260,9 +260,9 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                   dual_print( $log, " +FP => $FP\n");
                   $all{$chimere_type}{$level}{$type}{'FP'} += $FP;
 
-                  dual_print( $log, "End1 TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n");
-                  dual_print( $log, "End1 FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n");
-                  dual_print( $log, "End1 FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n");
+                  dual_print( $log, "End1 TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n", 2);
+                  dual_print( $log, "End1 FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n", 2);
+                  dual_print( $log, "End1 FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n", 2);
                   dual_print( $log, " Case1 - Next location2!\n\n");
                   my $tothrow = shift  @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}};# Throw location B
                 }
@@ -272,9 +272,9 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                 #      ------------ OVERLAP -----------
                 ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
                 elsif( ($location1->[0] <= $location2->[1]) and ($location1->[1] >= $location2->[0])){
-                  dual_print( $log, " location @$location1 and @$location2 overlap !!!!\n");
+                  dual_print( $log, " location @$location1 and @$location2 overlap !!!!\n", 2);
                   my ($FN, $FP, $TP) = get_snsp_for_overlaps ($location1, $location2);
-                  dual_print( $log, " FN=$FN, FP=$FP, TP=$TP\n");
+                  dual_print( $log, " FN=$FN, FP=$FP, TP=$TP\n", 2);
 
 
                   my $locationB_remain = 0 ;
@@ -295,18 +295,18 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                   #  location A          -------------
                   #  location B  -----------   --  ------------
 
-                  dual_print( $log, "locationA_remain $locationA_remain \n");
-                  dual_print( $log, "locationB_remain $locationB_remain \n");
+                  dual_print( $log, "locationA_remain $locationA_remain \n", 2);
+                  dual_print( $log, "locationB_remain $locationB_remain \n", 2);
 
                   if ($locationA_remain and !$last_locationA and !$last_locationB){
                     # TP must always be added
                     $all{$chimere_type}{$level}{$type}{'TP'} += $TP;
                     $all{$chimere_type}{$level}{$type}{'FN'} -= $TP;
                     $all{$chimere_type}{$level}{$type}{'FP'} += $FP;
-                    dual_print( $log, " TP: ADDING ".$TP."\n");
-                    dual_print( $log, " FN: removing ".$TP."\n");
-                    dual_print( $log, " FP: ADDING ".$FP."\n");
-                    dual_print( $log, " Case2 A - Next location B \n");
+                    dual_print( $log, " TP: ADDING ".$TP."\n", 2);
+                    dual_print( $log, " FN: removing ".$TP."\n", 2);
+                    dual_print( $log, " FP: ADDING ".$FP."\n", 2);
+                    dual_print( $log, " Case2 A - Next location B \n", 2);
                     my $tothrow = shift  @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}};# Throw location B
                   }
 
@@ -316,10 +316,10 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                     $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
                     $all{$chimere_type}{$level}{$type}{'FP'} -= $TP;
 
-                    dual_print( $log, " TP: ADDING ".$TP."\n");
-                    dual_print( $log, " FN: ADDING ".$FN."\n");
-                    dual_print( $log, " FP: removing ".$TP."\n");
-                    dual_print( $log, " Case2 B - Next location A\n");
+                    dual_print( $log, " TP: ADDING ".$TP."\n", 2);
+                    dual_print( $log, " FN: ADDING ".$FN."\n", 2);
+                    dual_print( $log, " FP: removing ".$TP."\n", 2);
+                    dual_print( $log, " Case2 B - Next location A\n", 2);
                     last;
                   }
 
@@ -327,20 +327,20 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                     $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
                     $all{$chimere_type}{$level}{$type}{'FP'} += $FP;
                     $all{$chimere_type}{$level}{$type}{'TP'} += $TP;
-                    dual_print( $log, " TP: ADDING ".$TP."\n");
-                    dual_print( $log, " FN: ADDING ".$FN."\n");
-                    dual_print( $log, " FP: ADDING ".$FP."\n");
-                    dual_print( $log, " Case2 C ------\n");
-                    dual_print( $log, " End TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n");
-                    dual_print( $log, " End FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n");
-                    dual_print( $log, " End FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n\n");
+                    dual_print( $log, " TP: ADDING ".$TP."\n", 2);
+                    dual_print( $log, " FN: ADDING ".$FN."\n", 2);
+                    dual_print( $log, " FP: ADDING ".$FP."\n", 2);
+                    dual_print( $log, " Case2 C ------\n", 2);
+                    dual_print( $log, " End TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n", 2);
+                    dual_print( $log, " End FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n", 2);
+                    dual_print( $log, " End FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n\n", 2);
 
                       if( $last_locationB and !$last_locationA){
                         dual_print( $log, " Case2 C2 - Remove last location B\n");
                         my $tothrow = shift  @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}};# Throw location B
                       }
                       elsif ($last_locationA and !$last_locationB){
-                        dual_print( $log, " Case2 C3 - No more location A - LAST\n");
+                        dual_print( $log, " Case2 C3 - No more location A - LAST\n", 2);
                         last;
                       }
                       elsif ($last_locationA and $last_locationB){
@@ -353,7 +353,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                       #  location B  -------------- <
                       # No more locationA
                       elsif(!$locationA_remain and !$locationB_remain){
-                        dual_print( $log, " Clean cut !!! Removing LocationB and next Location A\n");
+                        dual_print( $log, " Clean cut !!! Removing LocationB and next Location A\n", 2);
                         my $tothrow = shift  @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}};# Throw location B
                         last; # next locationA
                       }
@@ -370,10 +370,10 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                   $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
                   dual_print( $log, " Take into account the current locationA! +FN: $FN;\n");
 
-                  dual_print( $log, " End2 TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n");
-                  dual_print( $log, " End2 FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n");
-                  dual_print( $log, " End2 FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n");
-                  dual_print( $log, " Case3 - Next location A \n\n");
+                  dual_print( $log, " End2 TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n", 2);
+                  dual_print( $log, " End2 FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n", 2);
+                  dual_print( $log, " End2 FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n", 2);
+                  dual_print( $log, " Case3 - Next location A \n\n", 2);
                   last; # next locationA
                 }
               }# END WHILE until location B is after A
@@ -385,7 +385,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
               my $FN += $location1->[1] - $location1->[0] + 1; #size
               dual_print( $log, " LocationA only => +FN:$FN\n");
               $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
-              dual_print( $log, " Case4 - Next location A \n\n");
+              dual_print( $log, " Case4 - Next location A \n\n", 2);
             }
           }
         }
@@ -396,7 +396,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
           my $FN=0;
           foreach my $location ( @{$flattened_locations1->{$locusID}{$chimere_type}{$level}{$type}} ){ # here the location are supposed to be sorted
             $FN += $location->[1] - $location->[0] + 1; #size
-            dual_print( $log, " Case5 - Next location A \n");
+            dual_print( $log, " Case5 - Next location A \n", 2);
           }
           $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
         }
@@ -437,7 +437,7 @@ foreach my $chimere_type ( keys %all ){
         my $FN=$all{$chimere_type}{$level}{$type}{'FN'};
         my $FP=$all{$chimere_type}{$level}{$type}{'FP'};
         my $TP=$all{$chimere_type}{$level}{$type}{'TP'};
-        dual_print( $log, "chimere_type:$chimere_type level:$level type/$type TP:$TP FN:$FN FP:$FP\n");
+        dual_print( $log, "chimere_type:$chimere_type level:$level type/$type TP:$TP FN:$FN FP:$FP\n", 2);
         if($TP){
           $sensitivity{$chimere_type}{$level}{$type} = sprintf("%.2f", $TP / ($TP + $FN) );
           $specificity{$chimere_type}{$level}{$type} = sprintf("%.2f", $TP / ($TP + $FP) );
