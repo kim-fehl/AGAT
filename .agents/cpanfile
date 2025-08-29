@@ -8,6 +8,7 @@ requires 'Bio::Tools::CodonTable';
 requires 'Bio::Tools::GFF';
 requires 'Carp';
 requires 'Clone';
+requires 'Config::Model';
 requires 'Cwd';
 requires 'DB_File';
 requires 'Exporter';
